@@ -22,7 +22,6 @@ const ActionButton = styled.button`
   font-size: 1.5em;
   font-weight: 300;
   height: 100%;
-  margin: 0 0.3em 0.3em 0;
   text-align: center;
   text-decoration: none;
   transition: all 0.2s;
