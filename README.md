@@ -1,3 +1,3 @@
 # ZM Puzzle
 
-<img src="./public/zm-puzzle.PNG" />
+<img src="./assets/zm-puzzle.PNG" />

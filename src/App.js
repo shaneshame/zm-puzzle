@@ -96,11 +96,6 @@ function App() {
       <AppFitted>
         <HeaderBar>
           <Header>ZM Puzzle</Header>
-          <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
-          <SubHeader>
-            • Clicking a tile inverts that tile, and each tile above, below,
-            left, and right of the one clicked.
-          </SubHeader>
         </HeaderBar>
         <BoardContainer boardSize={BOARD_SIZE}>
           <Board gameState={game} handleClick={handleClick} />
@@ -117,6 +112,13 @@ function App() {
           </ActionButton>
           <ActionButton onClick={newGame}>New</ActionButton>
         </ActionBar>
+        <HeaderBar>
+          <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
+          <SubHeader>
+            • Clicking a tile inverts that tile, and each tile above, below,
+            left, and right of the one clicked.
+          </SubHeader>
+        </HeaderBar>
       </AppFitted>
     </AppContainer>
   );
