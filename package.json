@@ -2,7 +2,7 @@
   "name": "zm-puzzle",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://shaneshame.github.io/zm-puzzle",
+  "homepage": "https://zmpuzzle.com",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",
@@ -39,8 +39,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^3.2.3"
   }
 }
