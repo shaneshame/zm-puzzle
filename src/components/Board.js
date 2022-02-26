@@ -1,8 +1,19 @@
 import React from "react";
 import styled from "styled-components";
-import colors from "./colors";
+
+import colors from "../colors";
+
+const BoardContainer = styled.div`
+  display: grid;
+  grid-template-columns: ${(props) => `repeat(${props.boardSize}, 1fr)`};
+  grid-template-rows: ${(props) => `repeat(${props.boardSize}, 1fr)`};
+  height: 100%;
+  position: relative;
+  width: 100%;
+`;
 
 const Tile = styled.div`
+  aspect-ratio: 1;
   background-color: ${(props) =>
     props.isSelected ? colors.selected : colors.unselected};
   border: 2px solid black;
@@ -45,4 +56,4 @@ const Board = ({ gameState, handleClick }) => {
   );
 };
 
-export default Board;
+export { Board, BoardContainer };

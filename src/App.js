@@ -2,53 +2,26 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 
-import { ActionBar, ActionButton } from "./ActionBar";
-import Board from "./Board";
-import { Header, HeaderBar, SubHeader } from "./Header";
-
-import colors from "./colors";
+import {
+  ActionBar,
+  ActionButton,
+  Board,
+  BoardContainer,
+  Header,
+  HeaderBar,
+  SubHeader,
+  WinMessage,
+  WinScreen,
+} from "./components";
 
 import { clickTile, createNewGame, isBoardEmpty, setSolutions } from "./util";
 
 const COMPLEXITY = 5;
 const BOARD_SIZE = 5;
 
-const BoardContainer = styled.div`
-  display: grid;
-  grid-template-columns: ${(props) => `repeat(${props.boardSize}, 1fr)`};
-  grid-template-rows: ${(props) => `repeat(${props.boardSize}, 1fr)`};
-  height: 100%;
-  position: relative;
-  width: 100%;
-`;
-
 const AppContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-`;
-
-const AppFitted = styled.div`
-  height: 500px;
+  margin: 0 auto;
   width: 500px;
-`;
-
-const WinScreen = styled.div`
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  position: absolute;
-  width: 100%;
-`;
-
-const WinMessage = styled.span`
-  color: ${colors.solution};
-  font-size: 4em;
-  padding-bottom: 0.5em;
-  text-align: center;
-  width: 100%;
 `;
 
 const initialGame = createNewGame(BOARD_SIZE, COMPLEXITY);
@@ -80,7 +53,7 @@ function App() {
     });
   };
 
-  const handleClick = (clickedX, clickedY) => {
+  const handleTileClick = (clickedX, clickedY) => {
     const grid = clickTile(clickedX, clickedY, game.grid);
 
     setGameState({
@@ -93,33 +66,31 @@ function App() {
 
   return (
     <AppContainer>
-      <AppFitted>
-        <HeaderBar>
-          <Header>ZM Puzzle</Header>
-        </HeaderBar>
-        <BoardContainer boardSize={BOARD_SIZE}>
-          <Board gameState={game} handleClick={handleClick} />
-          {game.hasWon && (
-            <WinScreen>
-              <WinMessage>You Won!!!</WinMessage>
-            </WinScreen>
-          )}
-        </BoardContainer>
-        <ActionBar>
-          <ActionButton onClick={restartGame}>Restart</ActionButton>
-          <ActionButton disabled={game.hasWon} onClick={solveGame}>
-            Solve
-          </ActionButton>
-          <ActionButton onClick={newGame}>New</ActionButton>
-        </ActionBar>
-        <HeaderBar>
-          <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
-          <SubHeader>
-            • Clicking a tile inverts that tile, and each tile above, below,
-            left, and right of the one clicked.
-          </SubHeader>
-        </HeaderBar>
-      </AppFitted>
+      <HeaderBar>
+        <Header>ZM Puzzle</Header>
+      </HeaderBar>
+      <BoardContainer boardSize={BOARD_SIZE}>
+        <Board gameState={game} handleClick={handleTileClick} />
+        {game.hasWon && (
+          <WinScreen>
+            <WinMessage>You Won!!!</WinMessage>
+          </WinScreen>
+        )}
+      </BoardContainer>
+      <ActionBar>
+        <ActionButton onClick={restartGame}>Restart</ActionButton>
+        <ActionButton disabled={game.hasWon} onClick={solveGame}>
+          Solve
+        </ActionButton>
+        <ActionButton onClick={newGame}>New</ActionButton>
+      </ActionBar>
+      <HeaderBar>
+        <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
+        <SubHeader>
+          • Clicking a tile inverts that tile, and each tile above, below, left,
+          and right of the one clicked.
+        </SubHeader>
+      </HeaderBar>
     </AppContainer>
   );
 }

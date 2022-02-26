@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import colors from "./colors";
+import colors from "../colors";
 
 const HeaderBar = styled.div`
   margin: 2em 0;
