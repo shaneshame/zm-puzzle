@@ -6,6 +6,18 @@ const range = (max = 0) => {
   return [...Array(max)].map((_, index) => index);
 };
 
+const getRandomInt = (max) => {
+  return Math.floor(Math.random() * max);
+};
+
+const isTuplePresent = ([a, b], tuples) => {
+  return tuples.reduce((isPresent, [curA, curB]) => {
+    return isPresent || (curA === a && curB === b);
+  }, false);
+};
+
+// Board Util
+
 const genEmptyBoard = (size) => {
   return range(size).map((y) =>
     range(size).map((x) => ({
@@ -16,12 +28,6 @@ const genEmptyBoard = (size) => {
   );
 };
 
-const getRandomInt = (max) => {
-  return Math.floor(Math.random() * max);
-};
-
-// Board Util
-
 const isBoardEmpty = (board) => {
   return board.reduce((isColumnEmpty, rows) => {
     return isColumnEmpty
@@ -30,12 +36,6 @@ const isBoardEmpty = (board) => {
         }, isColumnEmpty)
       : false;
   }, true);
-};
-
-const isTuplePresent = ([a, b], tuples) => {
-  return tuples.reduce((isPresent, [curA, curB]) => {
-    return isPresent || (curA === a && curB === b);
-  }, false);
 };
 
 const clickTile = (clickedX, clickedY, grid) => {

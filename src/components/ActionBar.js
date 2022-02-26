@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import colors from "./colors";
+import colors from "../colors";
 
 const ActionBar = styled.div`
   display: flex;
