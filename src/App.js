@@ -40,14 +40,17 @@ function App() {
   const [isShowingSolution, setIsShowingSolution] = useState(false);
   const [clickedSolutionTiles, setClickedSolutionTiles] = useState([]);
 
+  const defaultSolutionState = () => {
+    setClickedSolutionTiles([]);
+    setIsShowingSolution(false);
+  };
+
   const restartGame = () => {
     setGameState({
       ...startingState,
-      // timestamp: uuidv4(),
     });
 
-    setClickedSolutionTiles([]);
-    setIsShowingSolution(false);
+    defaultSolutionState();
   };
 
   const newGame = (settings = {}) => {
@@ -56,7 +59,8 @@ function App() {
 
     const game = createNewGame(newBoardSize, newComplexity);
 
-    setIsShowingSolution(false);
+    defaultSolutionState();
+
     setGameState(game);
     setStartingState(game);
   };
@@ -83,15 +87,13 @@ function App() {
     ) {
       setClickedSolutionTiles([...clickedSolutionTiles, [clickedX, clickedY]]);
     } else {
-      setIsShowingSolution(false);
-      setClickedSolutionTiles([]);
+      defaultSolutionState();
     }
 
     setGameState({
       ...game,
       grid,
       hasWon: isBoardEmpty(grid),
-      // timestamp: uuidv4(),
     });
   };
 
