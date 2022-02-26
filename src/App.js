@@ -78,6 +78,9 @@ function App() {
       !isTuplePresent([clickedX, clickedY], clickedSolutionTiles)
     ) {
       setClickedSolutionTiles([...clickedSolutionTiles, [clickedX, clickedY]]);
+    } else {
+      setIsShowingSolution(false);
+      setClickedSolutionTiles([]);
     }
 
     setGameState({
