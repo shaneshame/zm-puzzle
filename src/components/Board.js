@@ -33,9 +33,11 @@ const TileText = styled.span`
 `;
 
 const Board = ({ gameState, handleClick }) => {
+  const boardSize = gameState.grid.length;
+
   return (
     gameState.grid && (
-      <>
+      <BoardContainer boardSize={boardSize}>
         {gameState.grid.map((rows) =>
           rows.map(({ x, y, solution, ...rest }) => {
             return (
@@ -51,9 +53,9 @@ const Board = ({ gameState, handleClick }) => {
             );
           })
         )}
-      </>
+      </BoardContainer>
     )
   );
 };
 
-export { Board, BoardContainer };
+export { Board };

@@ -25,11 +25,12 @@ import {
 } from "./util";
 
 const DEFAULT_COMPLEXITY = 5;
-const MAX_COMPLEXITY = 10;
+const MAX_COMPLEXITY = 5;
 const BOARD_SIZE = 5;
 
 const AppContainer = styled.div`
   margin: 0 auto;
+  max-width: 100vw;
   width: 500px;
 `;
 
@@ -90,14 +91,12 @@ function App() {
       <HeaderBar>
         <Header>ZM Puzzle</Header>
       </HeaderBar>
-      <BoardContainer boardSize={BOARD_SIZE}>
-        <Board gameState={game} handleClick={handleTileClick} />
-        {game.hasWon && (
-          <WinScreen>
-            <WinMessage>You Won!!!</WinMessage>
-          </WinScreen>
-        )}
-      </BoardContainer>
+      <Board gameState={game} handleClick={handleTileClick} />
+      {game.hasWon && (
+        <WinScreen>
+          <WinMessage>You Won!!!</WinMessage>
+        </WinScreen>
+      )}
       <ActionBar>
         <ActionButton onClick={restartGame}>Restart</ActionButton>
         <ActionButton disabled={game.hasWon} onClick={solveGame}>
@@ -122,7 +121,6 @@ function App() {
           })}
         </Select>
       </ActionBar>
-
       <HeaderBar>
         <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
         <SubHeader>
