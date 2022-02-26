@@ -11,16 +11,14 @@ import {
   Select,
   SelectOption,
   SubHeader,
-  WinMessage,
-  WinScreen,
 } from "./components";
 
 import {
   clickTile,
   createNewGame,
   isBoardEmpty,
+  isTuplePresent,
   range,
-  setSolutions,
 } from "./util";
 
 const DEFAULT_COMPLEXITY = 5;
@@ -39,6 +37,8 @@ function App() {
   const [complexity, setComplexity] = useState(DEFAULT_COMPLEXITY);
   const [startingState, setStartingState] = useState(initialGame);
   const [game, setGameState] = useState(initialGame);
+  const [isShowingSolution, setIsShowingSolution] = useState(false);
+  const [clickedSolutionTiles, setClickedSolutionTiles] = useState([]);
 
   const restartGame = () => {
     setGameState({
@@ -53,17 +53,13 @@ function App() {
 
     const game = createNewGame(newBoardSize, newComplexity);
 
+    setIsShowingSolution(false);
     setGameState(game);
     setStartingState(game);
   };
 
-  const solveGame = () => {
-    const solvedGame = setSolutions(startingState);
-
-    setGameState({
-      ...solvedGame,
-      timestamp: uuidv4(),
-    });
+  const handleShowSolution = () => {
+    setIsShowingSolution(!isShowingSolution);
   };
 
   const handleSelectComplexity = (event) => {
@@ -76,6 +72,13 @@ function App() {
 
   const handleTileClick = (clickedX, clickedY) => {
     const grid = clickTile(clickedX, clickedY, game.grid);
+
+    if (
+      isTuplePresent([clickedX, clickedY], game.clickCoords) &&
+      !isTuplePresent([clickedX, clickedY], clickedSolutionTiles)
+    ) {
+      setClickedSolutionTiles([...clickedSolutionTiles, [clickedX, clickedY]]);
+    }
 
     setGameState({
       ...game,
@@ -90,15 +93,24 @@ function App() {
       <HeaderBar>
         <Header>ZM Puzzle</Header>
       </HeaderBar>
-      <Board gameState={game} handleClick={handleTileClick} />
-      {game.hasWon && (
-        <WinScreen>
-          <WinMessage>You Won!!!</WinMessage>
-        </WinScreen>
-      )}
+      <Board
+        gameState={{
+          ...game,
+          clickCoords: game.clickCoords.filter(
+            (clickCoords) => !isTuplePresent(clickCoords, clickedSolutionTiles)
+          ),
+        }}
+        handleClick={handleTileClick}
+        hasWon={game.hasWon}
+        isShowingSolution={isShowingSolution}
+      />
       <ActionBar>
         <ActionButton onClick={restartGame}>Restart</ActionButton>
-        <ActionButton disabled={game.hasWon} onClick={solveGame}>
+        <ActionButton
+          disabled={game.hasWon}
+          isShowingSolution={isShowingSolution}
+          onClick={handleShowSolution}
+        >
           Solve
         </ActionButton>
         <ActionButton onClick={() => newGame({ complexity })}>New</ActionButton>

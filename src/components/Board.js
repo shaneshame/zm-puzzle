@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 import colors from "../colors";
+import { getSolutionCount, isBinaryTrue, isTuplePresent } from "../util";
+import { WinOverlay } from "./WinScreen";
 
 const BoardContainer = styled.div`
   display: grid;
@@ -13,46 +15,51 @@ const BoardContainer = styled.div`
 `;
 
 const Tile = styled.div`
+  align-items: center;
   aspect-ratio: 1;
   background-color: ${(props) =>
     props.isSelected ? colors.selected : colors.unselected};
   border: 2px solid black;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
   justify-content: center;
 `;
 
-const TileText = styled.span`
-  color: ${colors.solution};
-  font-size: 3em;
-  font-weight: 700;
-  text-align: center;
-  padding-bottom: 4px;
-  width: 100%;
+const SolutionIndicator = styled.span`
+  aspect-ratio: 1;
+  background-color: ${colors.solution};
+  border-radius: 50%;
+  width: 3em;
 `;
 
-const Board = ({ gameState, handleClick }) => {
-  const boardSize = gameState.grid.length;
+const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {
+  const { clickCoords, grid } = gameState;
+  const boardSize = grid.length;
 
   return (
-    gameState.grid && (
+    grid && (
       <BoardContainer boardSize={boardSize}>
-        {gameState.grid.map((rows) =>
-          rows.map(({ x, y, solution, ...rest }) => {
+        {grid.map((rows, y) =>
+          rows.map((value, x) => {
+            const solution =
+              isShowingSolution && isTuplePresent([x, y], clickCoords)
+                ? getSolutionCount([x, y], clickCoords)
+                : null;
+
             return (
               <Tile
-                {...rest}
                 key={`${x}.${y}`}
+                isSelected={isBinaryTrue(value)}
                 onClick={() => {
                   handleClick(x, y);
                 }}
               >
-                {solution && <TileText>{solution}</TileText>}
+                {solution && <SolutionIndicator />}
               </Tile>
             );
           })
         )}
+        {hasWon && <WinOverlay>You Won!!!</WinOverlay>}
       </BoardContainer>
     )
   );

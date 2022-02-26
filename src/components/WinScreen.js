@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components";
 import colors from "../colors";
 
@@ -19,4 +20,12 @@ const WinScreen = styled.div`
   width: 100%;
 `;
 
-export { WinMessage, WinScreen };
+const WinOverlay = ({ children }) => {
+  return (
+    <WinScreen>
+      <WinMessage>{children}</WinMessage>
+    </WinScreen>
+  );
+};
+
+export { WinOverlay };

@@ -16,31 +16,33 @@ const isTuplePresent = ([a, b], tuples) => {
   }, false);
 };
 
+const isBinaryTrue = (v) => {
+  return v % 2 > 0;
+};
+
+const toggleBinary = (v) => {
+  return (v + 1) % 2;
+};
+
 // Board Util
 
 const genEmptyBoard = (size) => {
-  return range(size).map((y) =>
-    range(size).map((x) => ({
-      isSelected: false,
-      x,
-      y,
-    }))
-  );
+  return range(size).map((y) => range(size).map((x) => 0));
 };
 
 const isBoardEmpty = (board) => {
   return board.reduce((isColumnEmpty, rows) => {
     return isColumnEmpty
-      ? rows.reduce((isRowEmpty, { isSelected }) => {
-          return isSelected ? false : isRowEmpty;
+      ? rows.reduce((isRowEmpty, value) => {
+          return isBinaryTrue(value) ? false : isRowEmpty;
         }, isColumnEmpty)
       : false;
   }, true);
 };
 
 const clickTile = (clickedX, clickedY, grid) => {
-  return grid.map((rows) =>
-    rows.map(({ isSelected, solution, x, y, ...rest }) => {
+  return grid.map((rows, y) =>
+    rows.map((value, x) => {
       const wasClicked = clickedX === x && clickedY === y;
 
       const shouldSwap = [
@@ -51,37 +53,15 @@ const clickTile = (clickedX, clickedY, grid) => {
         clickedX === x - 1 && clickedY === y,
       ].some(Boolean);
 
-      return {
-        ...rest,
-        isSelected: shouldSwap ? !isSelected : isSelected,
-        solution: wasClicked ? null : solution,
-        x,
-        y,
-      };
+      return shouldSwap ? toggleBinary(value) : value;
     })
   );
 };
 
-const getSolutionCount = (tile, clickCoords) => {
-  return clickCoords.reduce((curResult, [x, y], index) => {
-    return x === tile.x && y === tile.y ? index + 1 : curResult;
+const getSolutionCount = ([x, y], clickCoords) => {
+  return clickCoords.reduce((curResult, [clickX, clickY], index) => {
+    return clickX === x && clickY === y ? index + 1 : curResult;
   }, null);
-};
-
-const setSolutions = (game) => {
-  const solvedGrid = game.grid.map((rows) => {
-    return rows.map((tile) => {
-      return {
-        ...tile,
-        solution: getSolutionCount(tile, game.clickCoords),
-      };
-    });
-  });
-
-  return {
-    ...game,
-    grid: solvedGrid,
-  };
 };
 
 const createNewGame = (boardSize, numClicks) => {
@@ -111,8 +91,9 @@ export {
   createNewGame,
   genEmptyBoard,
   getRandomInt,
+  getSolutionCount,
+  isBinaryTrue,
   isBoardEmpty,
   isTuplePresent,
   range,
-  setSolutions,
 };
