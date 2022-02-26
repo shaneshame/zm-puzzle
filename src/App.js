@@ -43,8 +43,11 @@ function App() {
   const restartGame = () => {
     setGameState({
       ...startingState,
-      timestamp: uuidv4(),
+      // timestamp: uuidv4(),
     });
+
+    setClickedSolutionTiles([]);
+    setIsShowingSolution(false);
   };
 
   const newGame = (settings = {}) => {
@@ -59,6 +62,7 @@ function App() {
   };
 
   const handleShowSolution = () => {
+    restartGame();
     setIsShowingSolution(!isShowingSolution);
   };
 
@@ -87,7 +91,7 @@ function App() {
       ...game,
       grid,
       hasWon: isBoardEmpty(grid),
-      timestamp: uuidv4(),
+      // timestamp: uuidv4(),
     });
   };
 

@@ -83,7 +83,10 @@ const createNewGame = (boardSize, numClicks) => {
     grid = clickTile(clickX, clickY, grid);
   });
 
-  return { clickCoords, grid, timestamp: uuidv4() };
+  return {
+    clickCoords,
+    grid,
+  };
 };
 
 export {
