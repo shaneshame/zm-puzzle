@@ -103,7 +103,7 @@ function App() {
         <ActionButton disabled={game.hasWon} onClick={solveGame}>
           Solve
         </ActionButton>
-        <ActionButton onClick={newGame}>New</ActionButton>
+        <ActionButton onClick={() => newGame({ complexity })}>New</ActionButton>
       </ActionBar>
       <ActionBar>
         <Select
