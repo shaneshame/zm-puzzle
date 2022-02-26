@@ -29,7 +29,7 @@ const BOARD_SIZE = 5;
 
 const AppContainer = styled.div`
   margin: 0 auto;
-  max-width: 100vw;
+  max-width: 100%;
   width: 500px;
 `;
 
