@@ -9,14 +9,23 @@ import {
   BoardContainer,
   Header,
   HeaderBar,
+  Select,
+  SelectOption,
   SubHeader,
   WinMessage,
   WinScreen,
 } from "./components";
 
-import { clickTile, createNewGame, isBoardEmpty, setSolutions } from "./util";
+import {
+  clickTile,
+  createNewGame,
+  isBoardEmpty,
+  range,
+  setSolutions,
+} from "./util";
 
-const COMPLEXITY = 5;
+const DEFAULT_COMPLEXITY = 5;
+const MAX_COMPLEXITY = 10;
 const BOARD_SIZE = 5;
 
 const AppContainer = styled.div`
@@ -24,9 +33,10 @@ const AppContainer = styled.div`
   width: 500px;
 `;
 
-const initialGame = createNewGame(BOARD_SIZE, COMPLEXITY);
+const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
 
 function App() {
+  const [complexity, setComplexity] = useState(DEFAULT_COMPLEXITY);
   const [startingState, setStartingState] = useState(initialGame);
   const [game, setGameState] = useState(initialGame);
 
@@ -37,8 +47,11 @@ function App() {
     });
   };
 
-  const newGame = () => {
-    const game = createNewGame(BOARD_SIZE, COMPLEXITY);
+  const newGame = (settings = {}) => {
+    const newComplexity = settings.complexity || DEFAULT_COMPLEXITY;
+    const newBoardSize = settings.boardSize || BOARD_SIZE;
+
+    const game = createNewGame(newBoardSize, newComplexity);
 
     setGameState(game);
     setStartingState(game);
@@ -51,6 +64,14 @@ function App() {
       ...solvedGame,
       timestamp: uuidv4(),
     });
+  };
+
+  const handleSelectComplexity = (event) => {
+    const newComplexity = event.target.value;
+
+    setComplexity(newComplexity);
+
+    newGame({ complexity: newComplexity });
   };
 
   const handleTileClick = (clickedX, clickedY) => {
@@ -84,6 +105,24 @@ function App() {
         </ActionButton>
         <ActionButton onClick={newGame}>New</ActionButton>
       </ActionBar>
+      <ActionBar>
+        <Select
+          id="complexity-select"
+          onChange={handleSelectComplexity}
+          value={complexity}
+        >
+          {range(MAX_COMPLEXITY).map((n) => {
+            const value = n + 1;
+
+            return (
+              <SelectOption key={value} value={value}>
+                Complexity {value}
+              </SelectOption>
+            );
+          })}
+        </Select>
+      </ActionBar>
+
       <HeaderBar>
         <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
         <SubHeader>
