@@ -18,7 +18,7 @@ const Tile = styled.div`
   align-items: center;
   aspect-ratio: 1;
   background-color: ${(props) =>
-    props.isSelected ? colors.selected : colors.unselected};
+    props.isSelected ? colors.redSelected : colors.grayUnselected};
   border: 2px solid black;
   cursor: pointer;
   display: flex;
@@ -27,7 +27,7 @@ const Tile = styled.div`
 
 const SolutionIndicator = styled.span`
   aspect-ratio: 1;
-  background-color: ${colors.solution};
+  background-color: ${colors.greenSolution};
   border-radius: 50%;
   width: 3em;
 `;

@@ -4,9 +4,10 @@ const colors = {
   gray: "#a6a6a6",
   grayDark: "#696969",
   grayLight: "#e0e0e0",
-  selected: "#ff0000",
-  solution: "#2bff00",
-  unselected: "#b2b5c2",
+  grayUnselected: "#b2b5c2",
+  greenSolution: "#2bff00",
+  link: "#809fff",
+  redSelected: "#ff0000",
   white: "#ffffff",
 };
 

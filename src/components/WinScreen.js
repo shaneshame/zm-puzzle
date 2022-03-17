@@ -3,7 +3,7 @@ import styled from "styled-components";
 import colors from "../colors";
 
 const WinMessage = styled.span`
-  color: ${colors.solution};
+  color: ${colors.greenSolution};
   font-size: 4em;
   padding-bottom: 0.5em;
   text-align: center;

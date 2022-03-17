@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import colors from "./colors";
 import {
   ActionBar,
   ActionButton,
   Board,
   Header,
   HeaderBar,
+  HeaderLink,
   Select,
   SelectOption,
   SubHeader,
 } from "./components";
-
 import {
   clickTile,
   createNewGame,
@@ -28,6 +29,24 @@ const AppContainer = styled.div`
   margin: 0 auto;
   max-width: 100%;
   width: 500px;
+`;
+
+const SpacedActionRow = styled(ActionBar)`
+  margin-top: 2rem;
+`;
+
+const InstructionsAnchor = styled.a`
+  color: ${colors.link};
+  margin-left: 0.2em;
+
+  &:visited {
+    color: ${colors.link};
+  }
+`;
+
+const InstructionLine = styled.p`
+  color: ${colors.grayUnselected};
+  font-weight: 500;
 `;
 
 const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
@@ -99,7 +118,12 @@ function App() {
   return (
     <AppContainer>
       <HeaderBar>
-        <Header>ZM Puzzle</Header>
+        <Header>
+          <HeaderLink href="/">ZM Puzzle</HeaderLink>
+          <sup>
+            <InstructionsAnchor href="#instructions">[?]</InstructionsAnchor>
+          </sup>
+        </Header>
       </HeaderBar>
       <Board
         gameState={{
@@ -123,29 +147,30 @@ function App() {
         </ActionButton>
         <ActionButton onClick={() => newGame({ complexity })}>New</ActionButton>
       </ActionBar>
-      <ActionBar>
+      <SpacedActionRow>
         <Select
           id="complexity-select"
           onChange={handleSelectComplexity}
           value={complexity}
         >
-          {range(MAX_COMPLEXITY).map((n) => {
-            const value = n + 1;
-
+          {range(MAX_COMPLEXITY + 1).map((n) => {
             return (
-              <SelectOption key={value} value={value}>
-                Complexity {value}
+              <SelectOption key={n} value={n}>
+                Initial Clicks: {n}
               </SelectOption>
             );
           })}
         </Select>
-      </ActionBar>
+      </SpacedActionRow>
       <HeaderBar>
-        <SubHeader>• Clear the board by turning all tiles gray</SubHeader>
-        <SubHeader>
+        <SubHeader id="instructions">Instructions</SubHeader>
+        <InstructionLine>
+          • Clear the board by turning all tiles gray
+        </InstructionLine>
+        <InstructionLine>
           • Clicking a tile inverts that tile, and each tile above, below, left,
           and right of the one clicked.
-        </SubHeader>
+        </InstructionLine>
       </HeaderBar>
     </AppContainer>
   );
