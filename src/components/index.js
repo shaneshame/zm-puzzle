@@ -1,6 +1,6 @@
 import { ActionBar, ActionButton } from "./ActionBar";
 import { Board } from "./Board";
-import { Header, HeaderBar, SubHeader } from "./Header";
+import { Header, HeaderBar, HeaderLink, SubHeader } from "./Header";
 import { Select, SelectOption } from "./Select";
 import { WinOverlay } from "./WinScreen";
 
@@ -10,6 +10,7 @@ export {
   Board,
   Header,
   HeaderBar,
+  HeaderLink,
   Select,
   SelectOption,
   SubHeader,

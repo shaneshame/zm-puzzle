@@ -2,17 +2,25 @@ import styled from "styled-components";
 import colors from "../colors";
 
 const HeaderBar = styled.div`
-  margin: 2em 0;
+  margin: 1em 0;
   width: 100%;
 `;
 
 const Header = styled.h1`
-  color: ${colors.unselected};
+  color: ${colors.grayUnselected};
+  font-size: 2em;
   text-align: center;
 `;
 
-const SubHeader = styled.h2`
-  color: ${colors.unselected};
+const HeaderLink = styled.a`
+  color: inherit;
+  cursor: inherit;
+  font-size: inherit;
+  text-decoration: inherit;
 `;
 
-export { Header, HeaderBar, SubHeader };
+const SubHeader = styled.h2`
+  color: ${colors.grayUnselected};
+`;
+
+export { Header, HeaderBar, HeaderLink, SubHeader };
