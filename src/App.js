@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import colors from "./colors";
+import colors from './colors';
 import {
   ActionBar,
   ActionButton,
@@ -12,14 +12,15 @@ import {
   Select,
   SelectOption,
   SubHeader,
-} from "./components";
+} from './components';
 import {
   clickTile,
   createNewGame,
+  getEmptyBoard,
   isBoardEmpty,
   isTuplePresent,
   range,
-} from "./util";
+} from './util';
 
 const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 5;
@@ -57,6 +58,7 @@ function App() {
   const [game, setGameState] = useState(initialGame);
   const [isShowingSolution, setIsShowingSolution] = useState(false);
   const [clickedSolutionTiles, setClickedSolutionTiles] = useState([]);
+  const [clickedTiles, setClickedTiles] = useState(getEmptyBoard(BOARD_SIZE));
 
   const defaultSolutionState = () => {
     setClickedSolutionTiles([]);
@@ -99,6 +101,11 @@ function App() {
   const handleTileClick = (clickedX, clickedY) => {
     const grid = clickTile(clickedX, clickedY, game.grid);
 
+    const clickTracker = clickTile(clickedX, clickedY, clickedTiles);
+    setClickedTiles(clickTracker);
+
+    console.log('clickTracker', clickTracker);
+
     if (
       isTuplePresent([clickedX, clickedY], game.clickCoords) &&
       !isTuplePresent([clickedX, clickedY], clickedSolutionTiles)
@@ -129,7 +136,7 @@ function App() {
         gameState={{
           ...game,
           clickCoords: game.clickCoords.filter(
-            (clickCoords) => !isTuplePresent(clickCoords, clickedSolutionTiles)
+            (clickCoords) => !isTuplePresent(clickCoords, clickedSolutionTiles),
           ),
         }}
         handleClick={handleTileClick}

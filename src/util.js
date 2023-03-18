@@ -24,7 +24,7 @@ const toggleBinary = (v) => {
 
 // Board Util
 
-const genEmptyBoard = (size) => {
+const getEmptyBoard = (size) => {
   return range(size).map((y) => range(size).map((x) => 0));
 };
 
@@ -52,7 +52,7 @@ const clickTile = (clickedX, clickedY, grid) => {
       ].some(Boolean);
 
       return shouldSwap ? toggleBinary(value) : value;
-    })
+    }),
   );
 };
 
@@ -63,7 +63,7 @@ const getSolutionCount = ([x, y], clickCoords) => {
 };
 
 const createNewGame = (boardSize, numClicks) => {
-  let grid = genEmptyBoard(boardSize);
+  let grid = getEmptyBoard(boardSize);
 
   let clickCoords = [];
 
@@ -90,7 +90,7 @@ const createNewGame = (boardSize, numClicks) => {
 export {
   clickTile,
   createNewGame,
-  genEmptyBoard,
+  getEmptyBoard,
   getRandomInt,
   getSolutionCount,
   isBinaryTrue,
