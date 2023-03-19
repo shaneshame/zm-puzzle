@@ -28,4 +28,6 @@ const WinOverlay = ({ children }) => {
   );
 };
 
+WinOverlay.displayName = 'WinOverlay';
+
 export { WinOverlay };
