@@ -1,11 +1,11 @@
-import React from "react";
-import styled from "styled-components";
-import colors from "../colors";
+import React from 'react';
+import styled from 'styled-components';
+import colors from '../colors';
 
 const WinMessage = styled.span`
   color: ${colors.greenSolution};
-  font-size: 4em;
-  padding-bottom: 0.5em;
+  font-size: 4rem;
+  padding-bottom: 0.5rem;
   text-align: center;
   width: 100%;
 `;
