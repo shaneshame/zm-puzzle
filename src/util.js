@@ -6,6 +6,19 @@ const range = (max = 0) => {
   return [...Array(max)].map((_, index) => index);
 };
 
+const chunk = (arr = [], size = 1) => {
+  return arr.reduce((accumulator, value, index) => {
+    const chunkIndex = Math.floor(index / size);
+    const currentChunk = accumulator[chunkIndex] || [];
+
+    currentChunk.push(value);
+
+    accumulator[chunkIndex] = currentChunk;
+
+    return accumulator;
+  }, []);
+};
+
 const getRandomInt = (max) => {
   return Math.floor(Math.random() * max);
 };
@@ -32,23 +45,12 @@ const boardIndexToCoords = (index, boardSize) => {
   const x = index % boardSize;
   const y = Math.floor(index / boardSize);
 
-  return [x, y];
+  return { x, y };
 };
 
 const boardToMatrix = (board) => {
   const matrixSize = Math.sqrt(board.length);
-
-  let matrix = [];
-
-  board.forEach((value, index) => {
-    const [_, y] = boardIndexToCoords(index, matrixSize); // eslint-disable-line no-unused-vars
-
-    matrix[y] = matrix[y] ?? [];
-
-    matrix[y].push(value);
-  });
-
-  return matrix;
+  return chunk(board, matrixSize);
 };
 
 const getEmptyBoard = (size) => {
@@ -79,7 +81,7 @@ const clickTile = (clickedIndex, board) => {
   const boardSize = Math.sqrt(board.length);
 
   return board.map((value, index) => {
-    const shouldSwap = [
+    const shouldToggle = [
       index === clickedIndex,
       index === getIndexAbove(clickedIndex, boardSize),
       index === getIndexBelow(clickedIndex, boardSize),
@@ -87,32 +89,26 @@ const clickTile = (clickedIndex, board) => {
       index === getIndexRight(clickedIndex, boardSize),
     ].some(Boolean);
 
-    return shouldSwap ? toggleBinary(value) : value;
+    return shouldToggle ? toggleBinary(value) : value;
   });
 };
 
 const clickManyTiles = (indices, board, callback = noop) => {
-  let newBoard = [...board];
+  return indices.reduce(
+    (curBoard, indexValue) => {
+      callback(indexValue);
 
-  indices.forEach((index) => {
-    newBoard = clickTile(index, newBoard);
-    callback(index);
-  });
-
-  return newBoard;
+      return clickTile(indexValue, curBoard);
+    },
+    [...board],
+  );
 };
 
-const getUniqueIndices = (count, length) => {
+const getUniqueIndices = (count, maxIndex) => {
   const uniqueIndices = new Set();
 
-  for (let index = 0; index < count; index += 1) {
-    let nextIndex = getRandomInt(length);
-
-    while (uniqueIndices.has(nextIndex)) {
-      nextIndex = getRandomInt(length);
-    }
-
-    uniqueIndices.add(nextIndex);
+  while (uniqueIndices.size < count) {
+    uniqueIndices.add(getRandomInt(maxIndex));
   }
 
   return [...uniqueIndices];
@@ -138,7 +134,9 @@ const createNewGame = (boardSize, numClicks) => {
 export {
   boardIndexToCoords,
   boardToMatrix,
+  chunk,
   clickTile,
+  clickManyTiles,
   coordsToBoardIndex,
   createNewGame,
   getEmptyBoard,
