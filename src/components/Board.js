@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import colors from '../colors';
-import { coordsToFlattenedIndex, isBinaryTrue } from '../util';
+import { boardToMatrix, coordsToBoardIndex, isBinaryTrue } from '../util';
 import { WinOverlay } from './WinScreen';
 
 const BoardContainer = styled.div`
@@ -32,24 +32,25 @@ const SolutionIndicator = styled.span`
   width: 3rem;
 `;
 
-const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {
-  const { clickedTiles, grid } = gameState;
-  const boardSize = grid.length;
+const Board = ({ game, handleClick, hasWon, isShowingSolution }) => {
+  const { board, boardSize, clickedTiles } = game;
+
+  const boardMatrix = boardToMatrix(board, boardSize);
 
   return (
-    grid && (
+    boardMatrix && (
       <BoardContainer boardSize={boardSize}>
-        {grid.map((rows, y) =>
+        {boardMatrix.map((rows, y) =>
           rows.map((value, x) => {
-            const flattenedIndex = coordsToFlattenedIndex(x, y, boardSize);
-            const isSolutionTile = !!clickedTiles[flattenedIndex];
+            const boardIndex = coordsToBoardIndex(x, y, boardSize);
+            const isSolutionTile = !!clickedTiles[boardIndex];
 
             return (
               <Tile
                 key={`${x}.${y}`}
                 isSelected={isBinaryTrue(value)}
                 onClick={() => {
-                  handleClick(x, y);
+                  handleClick(boardIndex);
                 }}
               >
                 {isSolutionTile && isShowingSolution && <SolutionIndicator />}
