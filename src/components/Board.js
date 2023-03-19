@@ -1,9 +1,9 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import colors from "../colors";
-import { getSolutionCount, isBinaryTrue, isTuplePresent } from "../util";
-import { WinOverlay } from "./WinScreen";
+import colors from '../colors';
+import { coordsToFlattenedIndex, isBinaryTrue } from '../util';
+import { WinOverlay } from './WinScreen';
 
 const BoardContainer = styled.div`
   display: grid;
@@ -33,7 +33,7 @@ const SolutionIndicator = styled.span`
 `;
 
 const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {
-  const { clickCoords, grid } = gameState;
+  const { clickedTiles, grid } = gameState;
   const boardSize = grid.length;
 
   return (
@@ -41,10 +41,8 @@ const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {
       <BoardContainer boardSize={boardSize}>
         {grid.map((rows, y) =>
           rows.map((value, x) => {
-            const solution =
-              isShowingSolution && isTuplePresent([x, y], clickCoords)
-                ? getSolutionCount([x, y], clickCoords)
-                : null;
+            const flattenedIndex = coordsToFlattenedIndex(x, y, boardSize);
+            const isSolutionTile = !!clickedTiles[flattenedIndex];
 
             return (
               <Tile
@@ -54,10 +52,10 @@ const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {
                   handleClick(x, y);
                 }}
               >
-                {solution && <SolutionIndicator />}
+                {isSolutionTile && isShowingSolution && <SolutionIndicator />}
               </Tile>
             );
-          })
+          }),
         )}
         {hasWon && <WinOverlay>You Won!!!</WinOverlay>}
       </BoardContainer>
