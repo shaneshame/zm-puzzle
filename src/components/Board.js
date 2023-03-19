@@ -63,4 +63,6 @@ const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {
   );
 };
 
+Board.displayName = 'Board';
+
 export { Board };
