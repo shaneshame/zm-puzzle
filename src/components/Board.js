@@ -43,7 +43,7 @@ const Board = ({ game, handleClick, hasWon, isShowingSolution }) => {
         {boardMatrix.map((rows, y) =>
           rows.map((value, x) => {
             const boardIndex = coordsToBoardIndex(x, y, boardSize);
-            const isSolutionTile = !!clickedTiles[boardIndex];
+            const isSolutionTile = isBinaryTrue(clickedTiles[boardIndex]);
 
             return (
               <Tile
