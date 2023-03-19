@@ -3,13 +3,13 @@ import colors from '../colors';
 
 const HeaderBar = styled.div`
   position: relative;
-  margin: 1em 0;
+  margin: 1rem 0;
   width: 100%;
 `;
 
 const Header = styled.h1`
   color: ${colors.grayUnselected};
-  font-size: 2em;
+  font-size: 2rem;
   text-align: center;
 `;
 

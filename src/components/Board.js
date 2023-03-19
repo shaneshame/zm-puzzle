@@ -29,7 +29,7 @@ const SolutionIndicator = styled.span`
   aspect-ratio: 1;
   background-color: ${colors.greenSolution};
   border-radius: 50%;
-  width: 3em;
+  width: 3rem;
 `;
 
 const Board = ({ gameState, handleClick, hasWon, isShowingSolution }) => {

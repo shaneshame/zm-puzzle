@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import colors from './colors';
 import {
   ActionBar,
   ActionButton,
   Board,
+  ClickCounterContainer,
+  ClickCounterSpan,
+  FlashHighlight,
   Header,
   HeaderBar,
   HeaderLink,
+  InstructionsAnchor,
+  InstructionsItem,
+  InstructionsList,
+  InstructionsSection,
   Select,
   SelectOption,
+  SpacedContent,
   SubHeader,
 } from './components';
 import {
@@ -32,54 +39,6 @@ const AppContainer = styled.div`
   width: 500px;
 `;
 
-const InstructionsAnchor = styled.a`
-  color: ${colors.link};
-  margin-left: 0.2em;
-
-  &:visited {
-    color: ${colors.link};
-  }
-`;
-
-const InstructionLine = styled.p`
-  color: ${colors.grayUnselected};
-  font-weight: 500;
-`;
-
-const ClickCounterContainer = styled.div`
-  color: ${colors.grayUnselected};
-  font-size: 2rem;
-  font-weight: 500;
-  width: 100%;
-`;
-
-const SectionBar = styled.div`
-  padding: 1em;
-  position: relative;
-  width: 100%;
-`;
-
-const FlashHighlight = styled.div`
-  background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 5px;
-  bottom: 0;
-  left: 0;
-  opacity: 0;
-  position: absolute;
-  right: 0;
-  top: 0.5rem;
-  transition: opacity 0.4s;
-
-  &.flash {
-    opacity: 1;
-  }
-`;
-
-const ClickCounterSpan = styled.span`
-  color: ${(props) =>
-    props.hasExceeded ? colors.redSelected : colors.grayUnselected};
-`;
-
 const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
 
 function App() {
@@ -99,9 +58,13 @@ function App() {
     }
   }, [highlightInstructions]);
 
-  const restartGame = () => {
+  const resetState = () => {
     setIsShowingSolution(false);
     setClickCounter(0);
+  };
+
+  const restartGame = () => {
+    resetState();
 
     setGameState({
       ...startingState,
@@ -114,7 +77,7 @@ function App() {
 
     const game = createNewGame(newBoardSize, newComplexity);
 
-    setClickCounter(0);
+    resetState();
     setGameState(game);
     setStartingState(game);
   };
@@ -175,49 +138,57 @@ function App() {
         </ClickCounterSpan>
         {complexity > 0 && `/${complexity}`}
       </ClickCounterContainer>
-      <Board
-        gameState={game}
-        handleClick={handleTileClick}
-        hasWon={game.hasWon}
-        isShowingSolution={isShowingSolution}
-      />
-      <ActionBar>
-        <ActionButton onClick={restartGame}>Restart</ActionButton>
-        <ActionButton
-          disabled={game.hasWon}
+      <SpacedContent space={1}>
+        <Board
+          gameState={game}
+          handleClick={handleTileClick}
+          hasWon={game.hasWon}
           isShowingSolution={isShowingSolution}
-          onClick={handleShowSolution}
-        >
-          Solve
-        </ActionButton>
-        <ActionButton onClick={() => newGame({ complexity })}>New</ActionButton>
-      </ActionBar>
-      <ActionBar>
-        <Select
-          id="complexity-select"
-          onChange={handleSelectComplexity}
-          value={complexity}
-        >
-          {range(MAX_COMPLEXITY + 1).map((n) => {
-            return (
-              <SelectOption key={n} value={n}>
-                Starting Clicks: {n}
-              </SelectOption>
-            );
-          })}
-        </Select>
-      </ActionBar>
-      <SectionBar>
-        <SubHeader id="instructions">Instructions</SubHeader>
-        <InstructionLine>
-          • Clear the board by turning all tiles gray
-        </InstructionLine>
-        <InstructionLine>
-          • Clicking a tile inverts that tile, and each tile above, below, left,
-          and right of the one clicked.
-        </InstructionLine>
-        <FlashHighlight className={highlightInstructions ? 'flash' : ''} />
-      </SectionBar>
+        />
+        <SpacedContent space={1}>
+          <ActionBar>
+            <ActionButton onClick={restartGame}>Restart</ActionButton>
+            <ActionButton
+              disabled={game.hasWon}
+              isShowingSolution={isShowingSolution}
+              onClick={handleShowSolution}
+            >
+              Solve
+            </ActionButton>
+            <ActionButton onClick={() => newGame({ complexity })}>
+              New
+            </ActionButton>
+          </ActionBar>
+          <ActionBar>
+            <Select
+              id="complexity-select"
+              onChange={handleSelectComplexity}
+              value={complexity}
+            >
+              {range(MAX_COMPLEXITY + 1).map((n) => {
+                return (
+                  <SelectOption key={n} value={n}>
+                    Starting Clicks: {n}
+                  </SelectOption>
+                );
+              })}
+            </Select>
+          </ActionBar>
+          <InstructionsSection>
+            <SubHeader id="instructions">Instructions</SubHeader>
+            <InstructionsList>
+              <InstructionsItem>
+                Clear the board by turning all tiles gray
+              </InstructionsItem>
+              <InstructionsItem>
+                Clicking a tile inverts that tile, and each tile above, below,
+                left, and right of the one clicked
+              </InstructionsItem>
+            </InstructionsList>
+            <FlashHighlight className={highlightInstructions ? 'flash' : ''} />
+          </InstructionsSection>
+        </SpacedContent>
+      </SpacedContent>
     </AppContainer>
   );
 }
