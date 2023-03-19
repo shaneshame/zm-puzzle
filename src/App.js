@@ -133,10 +133,12 @@ function App() {
       </HeaderBar>
       <ClickCounterContainer>
         Clicks:{' '}
-        <ClickCounterSpan hasExceeded={clickCounter > complexity}>
+        <ClickCounterSpan
+          hasExceeded={complexity > 0 && clickCounter > complexity}
+        >
           {clickCounter}
-        </ClickCounterSpan>{' '}
-        / {complexity}
+        </ClickCounterSpan>
+        {complexity > 0 && `/${complexity}`}
       </ClickCounterContainer>
       <Board
         gameState={game}
