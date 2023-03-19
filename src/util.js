@@ -1,5 +1,7 @@
 // Generic
 
+const noop = () => {};
+
 const range = (max = 0) => {
   return [...Array(max)].map((_, index) => index);
 };
@@ -8,14 +10,12 @@ const getRandomInt = (max) => {
   return Math.floor(Math.random() * max);
 };
 
-const isTuplePresent = ([a, b], tuples) => {
-  return tuples.reduce((isPresent, [curA, curB]) => {
-    return isPresent || (curA === a && curB === b);
-  }, false);
-};
-
 const isBinaryTrue = (v) => {
   return v % 2 > 0;
+};
+
+const isBinaryFalse = (v) => {
+  return v % 2 === 0;
 };
 
 const toggleBinary = (v) => {
@@ -24,120 +24,131 @@ const toggleBinary = (v) => {
 
 // Board Util
 
-const flattenBoard = (board) => {
-  const flattened = [];
-
-  board.forEach((rows) => {
-    rows.forEach((value) => {
-      flattened.push(value);
-    });
-  });
-
-  return flattened;
-};
-
-const coordsToFlattenedIndex = (x, y, boardSize) => {
+const coordsToBoardIndex = (x, y, boardSize) => {
   return y * boardSize + x;
 };
 
-const flattenedIndexToCoords = (index, boardSize) => {
+const boardIndexToCoords = (index, boardSize) => {
   const x = index % boardSize;
   const y = Math.floor(index / boardSize);
 
   return [x, y];
 };
 
-const clickedTilesToCoords = (clickedTiles, boardSize) => {
-  const coords = [];
+const boardToMatrix = (board) => {
+  const matrixSize = Math.sqrt(board.length);
 
-  clickedTiles.forEach((value, index) => {
-    if (!!value) {
-      coords.push(flattenedIndexToCoords(index, boardSize));
-    }
+  let matrix = [];
+
+  board.forEach((value, index) => {
+    const [_, y] = boardIndexToCoords(index, matrixSize); // eslint-disable-line no-unused-vars
+
+    matrix[y] = matrix[y] ?? [];
+
+    matrix[y].push(value);
   });
 
-  return coords;
+  return matrix;
 };
 
 const getEmptyBoard = (size) => {
-  return range(size).map((y) => range(size).map((x) => 0));
+  return range(size ** 2).map(() => 0);
 };
 
 const isBoardEmpty = (board) => {
-  return board.reduce((isColumnEmpty, rows) => {
-    return isColumnEmpty
-      ? rows.reduce((isRowEmpty, value) => {
-          return isBinaryTrue(value) ? false : isRowEmpty;
-        }, isColumnEmpty)
-      : false;
-  }, true);
+  return board.every(isBinaryFalse);
 };
 
-const clickTile = (clickedX, clickedY, grid) => {
-  return grid.map((rows, y) =>
-    rows.map((value, x) => {
-      const wasClicked = clickedX === x && clickedY === y;
-
-      const shouldSwap = [
-        wasClicked,
-        clickedX === x && clickedY === y - 1,
-        clickedX === x && clickedY === y + 1,
-        clickedX === x + 1 && clickedY === y,
-        clickedX === x - 1 && clickedY === y,
-      ].some(Boolean);
-
-      return shouldSwap ? toggleBinary(value) : value;
-    }),
-  );
+const getIndexAbove = (index, boardSize) => {
+  return index > boardSize - 1 ? index - boardSize : null;
 };
 
-const getSolutionCount = ([x, y], clickCoords) => {
-  return clickCoords.reduce((curResult, [clickX, clickY], index) => {
-    return clickX === x && clickY === y ? index + 1 : curResult;
-  }, null);
+const getIndexBelow = (index, boardSize) => {
+  return index < boardSize ** 2 - boardSize ? index + boardSize : null;
+};
+
+const getIndexLeft = (index, boardSize) => {
+  return index % boardSize > 0 ? index - 1 : null;
+};
+
+const getIndexRight = (index, boardSize) => {
+  return (index + 1) % boardSize > 0 ? index + 1 : null;
+};
+
+const clickTile = (clickedIndex, board) => {
+  const boardSize = Math.sqrt(board.length);
+
+  return board.map((value, index) => {
+    const shouldSwap = [
+      index === clickedIndex,
+      index === getIndexAbove(clickedIndex, boardSize),
+      index === getIndexBelow(clickedIndex, boardSize),
+      index === getIndexLeft(clickedIndex, boardSize),
+      index === getIndexRight(clickedIndex, boardSize),
+    ].some(Boolean);
+
+    return shouldSwap ? toggleBinary(value) : value;
+  });
+};
+
+const clickManyTiles = (indices, board, callback = noop) => {
+  let newBoard = [...board];
+
+  indices.forEach((index) => {
+    newBoard = clickTile(index, newBoard);
+    callback(index);
+  });
+
+  return newBoard;
+};
+
+const getUniqueIndices = (count, length) => {
+  const uniqueIndices = new Set();
+
+  for (let index = 0; index < count; index += 1) {
+    let nextIndex = getRandomInt(length);
+
+    while (uniqueIndices.has(nextIndex)) {
+      nextIndex = getRandomInt(length);
+    }
+
+    uniqueIndices.add(nextIndex);
+  }
+
+  return [...uniqueIndices];
 };
 
 const createNewGame = (boardSize, numClicks) => {
-  let grid = getEmptyBoard(boardSize);
-  let clickedTiles = flattenBoard(getEmptyBoard(boardSize));
+  let board = getEmptyBoard(boardSize);
+  let clickedTiles = getEmptyBoard(boardSize);
 
-  let clickCoords = [];
+  const clickIndices = getUniqueIndices(numClicks, boardSize ** 2);
 
-  for (let click = 0; click < numClicks; click += 1) {
-    let nextClickCoords = [getRandomInt(boardSize), getRandomInt(boardSize)];
-
-    while (isTuplePresent(nextClickCoords, clickCoords)) {
-      nextClickCoords = [getRandomInt(boardSize), getRandomInt(boardSize)];
-    }
-
-    clickCoords = [...clickCoords, nextClickCoords];
-  }
-
-  clickCoords.forEach(([clickX, clickY]) => {
-    grid = clickTile(clickX, clickY, grid);
-
-    const clickedIndex = coordsToFlattenedIndex(clickX, clickY, boardSize);
+  board = clickManyTiles(clickIndices, board, (clickedIndex) => {
     clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
   });
 
   return {
+    board,
+    boardSize,
     clickedTiles,
-    grid,
   };
 };
 
 export {
+  boardIndexToCoords,
+  boardToMatrix,
   clickTile,
-  clickedTilesToCoords,
-  coordsToFlattenedIndex,
+  coordsToBoardIndex,
   createNewGame,
-  flattenedIndexToCoords,
   getEmptyBoard,
+  getIndexAbove,
+  getIndexBelow,
+  getIndexLeft,
+  getIndexRight,
   getRandomInt,
-  getSolutionCount,
   isBinaryTrue,
   isBoardEmpty,
-  isTuplePresent,
   range,
   toggleBinary,
 };
