@@ -11,8 +11,9 @@ import {
   Header,
   HeaderBar,
   HeaderLink,
-  InstructionsLine,
   InstructionsAnchor,
+  InstructionsItem,
+  InstructionsList,
   InstructionsSection,
   Select,
   SelectOption,
@@ -171,13 +172,15 @@ function App() {
           </ActionBar>
           <InstructionsSection>
             <SubHeader id="instructions">Instructions</SubHeader>
-            <InstructionsLine>
-              • Clear the board by turning all tiles gray
-            </InstructionsLine>
-            <InstructionsLine>
-              • Clicking a tile inverts that tile, and each tile above, below,
-              left, and right of the one clicked.
-            </InstructionsLine>
+            <InstructionsList>
+              <InstructionsItem>
+                Clear the board by turning all tiles gray
+              </InstructionsItem>
+              <InstructionsItem>
+                Clicking a tile inverts that tile, and each tile above, below,
+                left, and right of the one clicked
+              </InstructionsItem>
+            </InstructionsList>
             <FlashHighlight className={highlightInstructions ? 'flash' : ''} />
           </InstructionsSection>
         </SpacedContent>
