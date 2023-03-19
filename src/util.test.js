@@ -1,188 +1,293 @@
 import {
   boardIndexToCoords,
+  boardToMatrix,
+  chunk,
   clickTile,
+  clickManyTiles,
+  getEmptyBoard,
   getIndexAbove,
   getIndexBelow,
   getIndexLeft,
   getIndexRight,
+  range,
 } from './util';
 
-const BOARD_SIZE = 5;
+describe('Utility Functions', () => {
+  test('range', () => {
+    let size = 9;
+    let actual = range(size);
+    let expected = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-test('boardIndexToCoords', () => {
-  let actual = boardIndexToCoords(0, BOARD_SIZE);
-  let expected = [0, 0];
+    expect(actual).toEqual(expected);
+  });
 
-  expect(actual).toEqual(expected);
+  describe('chunk', () => {
+    test('should handle odd number in final chunk', () => {
+      const list = range(8);
+      const size = 3;
 
-  actual = boardIndexToCoords(6, BOARD_SIZE);
-  expected = [1, 1];
+      const actual = chunk(list, size);
+      const expected = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7],
+      ];
 
-  expect(actual).toEqual(expected);
+      expect(actual).toEqual(expected);
+    });
+
+    test('should handle even number chunks', () => {
+      const list = range(12);
+      const size = 4;
+
+      const actual = chunk(list, size);
+      const expected = [
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
+        [8, 9, 10, 11],
+      ];
+
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  test('boardIndexToCoords', () => {
+    const boardSize = 5;
+
+    let actual = boardIndexToCoords(0, boardSize);
+    let expected = { x: 0, y: 0 };
+
+    expect(actual).toEqual(expected);
+
+    actual = boardIndexToCoords(6, boardSize);
+    expected = { x: 1, y: 1 };
+
+    expect(actual).toEqual(expected);
+  });
+
+  test('getEmptyBoard', () => {
+    const boardSize = 5;
+    let emptyBoard = getEmptyBoard(boardSize);
+
+    let expected = [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ];
+
+    expect(emptyBoard).toEqual(expected);
+  });
+
+  test('boardToMatrix', () => {
+    const boardSize = 5;
+    let emptyBoard = getEmptyBoard(boardSize);
+
+    let matrix = boardToMatrix(emptyBoard);
+
+    let expected = [
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+    ];
+
+    expect(matrix).toEqual(expected);
+  });
 });
 
-test('getIndexAbove', () => {
-  let index = 0;
-  let actual = getIndexAbove(index, BOARD_SIZE);
-  let expected = null;
+describe('Click Tile', () => {
+  test('clickTile', () => {
+    const boardSize = 5;
+    const emptyBoard = getEmptyBoard(boardSize);
 
-  expect(actual).toBe(expected);
+    let clickIndex = 0;
+    let newBoard = clickTile(clickIndex, emptyBoard);
+    let expected = [
+      1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ];
 
-  index = 5;
-  actual = getIndexAbove(index, BOARD_SIZE);
-  expected = 0;
+    expect(newBoard).toEqual(expected);
 
-  expect(actual).toBe(expected);
+    clickIndex = 7;
+    newBoard = clickTile(clickIndex, emptyBoard);
+    expected = [
+      0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ];
 
-  index = 6;
-  actual = getIndexAbove(index, BOARD_SIZE);
-  expected = 1;
+    expect(newBoard).toEqual(expected);
 
-  expect(actual).toBe(expected);
+    clickIndex = 22;
+    newBoard = clickTile(clickIndex, emptyBoard);
+    expected = [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0,
+    ];
 
-  index = 10;
-  actual = getIndexAbove(index, BOARD_SIZE);
-  expected = 5;
+    expect(newBoard).toEqual(expected);
 
-  expect(actual).toBe(expected);
+    clickIndex = 13;
+    newBoard = clickTile(clickIndex, emptyBoard);
+    expected = [
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+    ];
 
-  index = 17;
-  actual = getIndexAbove(index, BOARD_SIZE);
-  expected = 12;
+    expect(newBoard).toEqual(expected);
+  });
 
-  expect(actual).toBe(expected);
-});
+  test('clickManyTiles', () => {
+    const boardSize = 5;
+    const emptyBoard = getEmptyBoard(boardSize);
 
-test('getIndexBelow', () => {
-  let index = 0;
-  let actual = getIndexBelow(index, BOARD_SIZE);
-  let expected = 5;
+    let indices = [7, 11, 0, 6, 22];
 
-  expect(actual).toBe(expected);
+    let newBoard = clickManyTiles(indices, emptyBoard);
+    let expected = [
+      1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0,
+    ];
 
-  index = 4;
-  actual = getIndexBelow(index, BOARD_SIZE);
-  expected = 9;
+    expect(newBoard).toEqual(expected);
 
-  expect(actual).toBe(expected);
+    indices = [10, 0, 8, 11, 17];
 
-  index = 10;
-  actual = getIndexBelow(index, BOARD_SIZE);
-  expected = 15;
+    newBoard = clickManyTiles(indices, emptyBoard);
+    expected = [
+      1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0,
+    ];
 
-  expect(actual).toBe(expected);
+    expect(newBoard).toEqual(expected);
+  });
 
-  index = 20;
-  actual = getIndexBelow(index, BOARD_SIZE);
-  expected = null;
+  test('getIndexAbove', () => {
+    const boardSize = 5;
 
-  expect(actual).toBe(expected);
+    let index = 0;
+    let actual = getIndexAbove(index, boardSize);
+    let expected = null;
 
-  index = 24;
-  actual = getIndexBelow(index, BOARD_SIZE);
-  expected = null;
+    expect(actual).toBe(expected);
 
-  expect(actual).toBe(expected);
-});
+    index = 5;
+    actual = getIndexAbove(index, boardSize);
+    expected = 0;
 
-test('getIndexLeft', () => {
-  let index = 0;
-  let actual = getIndexLeft(index, BOARD_SIZE);
-  let expected = null;
+    expect(actual).toBe(expected);
 
-  expect(actual).toBe(expected);
+    index = 6;
+    actual = getIndexAbove(index, boardSize);
+    expected = 1;
 
-  index = 5;
-  actual = getIndexLeft(index, BOARD_SIZE);
-  expected = null;
+    expect(actual).toBe(expected);
 
-  expect(actual).toBe(expected);
+    index = 10;
+    actual = getIndexAbove(index, boardSize);
+    expected = 5;
 
-  index = 1;
-  actual = getIndexLeft(index, BOARD_SIZE);
-  expected = 0;
+    expect(actual).toBe(expected);
 
-  expect(actual).toBe(expected);
+    index = 17;
+    actual = getIndexAbove(index, boardSize);
+    expected = 12;
 
-  index = 21;
-  actual = getIndexLeft(index, BOARD_SIZE);
-  expected = 20;
+    expect(actual).toBe(expected);
+  });
 
-  expect(actual).toBe(expected);
-});
+  test('getIndexBelow', () => {
+    const boardSize = 5;
 
-test('getIndexRight', () => {
-  let index = 0;
-  let actual = getIndexRight(index, BOARD_SIZE);
-  let expected = 1;
+    let index = 0;
+    let actual = getIndexBelow(index, boardSize);
+    let expected = 5;
 
-  expect(actual).toBe(expected);
+    expect(actual).toBe(expected);
 
-  index = 5;
-  actual = getIndexRight(index, BOARD_SIZE);
-  expected = 6;
+    index = 4;
+    actual = getIndexBelow(index, boardSize);
+    expected = 9;
 
-  expect(actual).toBe(expected);
+    expect(actual).toBe(expected);
 
-  index = 17;
-  actual = getIndexRight(index, BOARD_SIZE);
-  expected = 18;
+    index = 10;
+    actual = getIndexBelow(index, boardSize);
+    expected = 15;
 
-  expect(actual).toBe(expected);
+    expect(actual).toBe(expected);
 
-  index = 20;
-  actual = getIndexRight(index, BOARD_SIZE);
-  expected = 21;
+    index = 20;
+    actual = getIndexBelow(index, boardSize);
+    expected = null;
 
-  expect(actual).toBe(expected);
+    expect(actual).toBe(expected);
 
-  index = 4;
-  actual = getIndexRight(index, BOARD_SIZE);
-  expected = null;
+    index = 24;
+    actual = getIndexBelow(index, boardSize);
+    expected = null;
 
-  expect(actual).toBe(expected);
+    expect(actual).toBe(expected);
+  });
 
-  index = 24;
-  actual = getIndexRight(index, BOARD_SIZE);
-  expected = null;
+  test('getIndexLeft', () => {
+    const boardSize = 5;
 
-  expect(actual).toBe(expected);
-});
+    let index = 0;
+    let actual = getIndexLeft(index, boardSize);
+    let expected = null;
 
-test('clickTile', () => {
-  const emptyBoard = [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ];
+    expect(actual).toBe(expected);
 
-  let clickIndex = 0;
-  let actual = clickTile(clickIndex, emptyBoard);
-  let expected = [
-    1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ];
+    index = 5;
+    actual = getIndexLeft(index, boardSize);
+    expected = null;
 
-  expect(actual).toEqual(expected);
+    expect(actual).toBe(expected);
 
-  clickIndex = 7;
-  actual = clickTile(clickIndex, emptyBoard);
-  expected = [
-    0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ];
+    index = 1;
+    actual = getIndexLeft(index, boardSize);
+    expected = 0;
 
-  expect(actual).toEqual(expected);
+    expect(actual).toBe(expected);
 
-  clickIndex = 22;
-  actual = clickTile(clickIndex, emptyBoard);
-  expected = [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0,
-  ];
+    index = 21;
+    actual = getIndexLeft(index, boardSize);
+    expected = 20;
 
-  expect(actual).toEqual(expected);
+    expect(actual).toBe(expected);
+  });
 
-  clickIndex = 13;
-  actual = clickTile(clickIndex, emptyBoard);
-  expected = [
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-  ];
+  test('getIndexRight', () => {
+    const boardSize = 5;
 
-  expect(actual).toEqual(expected);
+    let index = 0;
+    let actual = getIndexRight(index, boardSize);
+    let expected = 1;
+
+    expect(actual).toBe(expected);
+
+    index = 5;
+    actual = getIndexRight(index, boardSize);
+    expected = 6;
+
+    expect(actual).toBe(expected);
+
+    index = 17;
+    actual = getIndexRight(index, boardSize);
+    expected = 18;
+
+    expect(actual).toBe(expected);
+
+    index = 20;
+    actual = getIndexRight(index, boardSize);
+    expected = 21;
+
+    expect(actual).toBe(expected);
+
+    index = 4;
+    actual = getIndexRight(index, boardSize);
+    expected = null;
+
+    expect(actual).toBe(expected);
+
+    index = 24;
+    actual = getIndexRight(index, boardSize);
+    expected = null;
+
+    expect(actual).toBe(expected);
+  });
 });
