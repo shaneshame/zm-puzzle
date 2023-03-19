@@ -39,8 +39,8 @@ const ActionButton = styled.button`
 
   @media (hover: hover) {
     &:hover {
-      color: ${colors.black};
       background-color: ${colors.white};
+      color: ${colors.black};
     }
   }
 `;

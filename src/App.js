@@ -20,9 +20,9 @@ import {
   SpacedContent,
   SubHeader,
 } from './components';
+
 import {
   clickTile,
-  coordsToFlattenedIndex,
   createNewGame,
   isBoardEmpty,
   range,
@@ -94,11 +94,10 @@ function App() {
     newGame({ complexity: newComplexity });
   };
 
-  const handleTileClick = (clickedX, clickedY) => {
-    const grid = clickTile(clickedX, clickedY, game.grid);
-    const clickedTiles = [...game.clickedTiles];
+  const handleTileClick = (clickedIndex) => {
+    const board = clickTile(clickedIndex, game.board);
 
-    const clickedIndex = coordsToFlattenedIndex(clickedX, clickedY, BOARD_SIZE);
+    const clickedTiles = [...game.clickedTiles];
 
     clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
 
@@ -107,8 +106,8 @@ function App() {
     setGameState({
       ...game,
       clickedTiles,
-      grid,
-      hasWon: isBoardEmpty(grid),
+      board,
+      hasWon: isBoardEmpty(board),
     });
   };
 
@@ -140,7 +139,7 @@ function App() {
       </ClickCounterContainer>
       <SpacedContent space={1}>
         <Board
-          gameState={game}
+          game={game}
           handleClick={handleTileClick}
           hasWon={game.hasWon}
           isShowingSolution={isShowingSolution}
