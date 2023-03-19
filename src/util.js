@@ -95,10 +95,10 @@ const clickTile = (clickedIndex, board) => {
 
 const clickManyTiles = (indices, board, callback = noop) => {
   return indices.reduce(
-    (curBoard, indexValue) => {
-      callback(indexValue);
+    (curBoard, indexClicked, clickCount) => {
+      callback(indexClicked, clickCount);
 
-      return clickTile(indexValue, curBoard);
+      return clickTile(indexClicked, curBoard);
     },
     [...board],
   );
