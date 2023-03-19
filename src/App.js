@@ -137,7 +137,7 @@ function App() {
         </ClickCounterSpan>
         {complexity > 0 && `/${complexity}`}
       </ClickCounterContainer>
-      <SpacedContent space={1}>
+      <SpacedContent space={0.5}>
         <Board
           game={game}
           handleClick={handleTileClick}
@@ -157,21 +157,19 @@ function App() {
             New
           </ActionButton>
         </ActionBar>
-        <ActionBar>
-          <Select
-            id="complexity-select"
-            onChange={handleSelectComplexity}
-            value={complexity}
-          >
-            {range(MAX_COMPLEXITY + 1).map((n) => {
-              return (
-                <SelectOption key={n} value={n}>
-                  Starting Clicks: {n}
-                </SelectOption>
-              );
-            })}
-          </Select>
-        </ActionBar>
+        <Select
+          id="complexity-select"
+          onChange={handleSelectComplexity}
+          value={complexity}
+        >
+          {range(MAX_COMPLEXITY + 1).map((n) => {
+            return (
+              <SelectOption key={n} value={n}>
+                Starting Clicks: {n}
+              </SelectOption>
+            );
+          })}
+        </Select>
         <InstructionsSection>
           <SubHeader id="instructions">Instructions</SubHeader>
           <InstructionsList>
