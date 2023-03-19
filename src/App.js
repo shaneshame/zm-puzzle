@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import colors from "./colors";
+import colors from './colors';
 import {
   ActionBar,
   ActionButton,
@@ -12,14 +12,15 @@ import {
   Select,
   SelectOption,
   SubHeader,
-} from "./components";
+} from './components';
 import {
   clickTile,
+  coordsToFlattenedIndex,
   createNewGame,
   isBoardEmpty,
-  isTuplePresent,
   range,
-} from "./util";
+  toggleBinary,
+} from './util';
 
 const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 5;
@@ -49,6 +50,18 @@ const InstructionLine = styled.p`
   font-weight: 500;
 `;
 
+const ClickCounterContainer = styled.div`
+  color: ${colors.grayUnselected};
+  font-size: 2rem;
+  font-weight: 500;
+  width: 100%;
+`;
+
+const ClickCounterSpan = styled.span`
+  color: ${(props) =>
+    props.hasExceeded ? colors.redSelected : colors.grayUnselected};
+`;
+
 const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
 
 function App() {
@@ -56,19 +69,15 @@ function App() {
   const [startingState, setStartingState] = useState(initialGame);
   const [game, setGameState] = useState(initialGame);
   const [isShowingSolution, setIsShowingSolution] = useState(false);
-  const [clickedSolutionTiles, setClickedSolutionTiles] = useState([]);
-
-  const defaultSolutionState = () => {
-    setClickedSolutionTiles([]);
-    setIsShowingSolution(false);
-  };
+  const [clickCounter, setClickCounter] = useState(0);
 
   const restartGame = () => {
+    setIsShowingSolution(false);
+    setClickCounter(0);
+
     setGameState({
       ...startingState,
     });
-
-    defaultSolutionState();
   };
 
   const newGame = (settings = {}) => {
@@ -77,14 +86,12 @@ function App() {
 
     const game = createNewGame(newBoardSize, newComplexity);
 
-    defaultSolutionState();
-
+    setClickCounter(0);
     setGameState(game);
     setStartingState(game);
   };
 
   const handleShowSolution = () => {
-    restartGame();
     setIsShowingSolution(!isShowingSolution);
   };
 
@@ -98,18 +105,17 @@ function App() {
 
   const handleTileClick = (clickedX, clickedY) => {
     const grid = clickTile(clickedX, clickedY, game.grid);
+    const clickedTiles = [...game.clickedTiles];
 
-    if (
-      isTuplePresent([clickedX, clickedY], game.clickCoords) &&
-      !isTuplePresent([clickedX, clickedY], clickedSolutionTiles)
-    ) {
-      setClickedSolutionTiles([...clickedSolutionTiles, [clickedX, clickedY]]);
-    } else {
-      defaultSolutionState();
-    }
+    const clickedIndex = coordsToFlattenedIndex(clickedX, clickedY, BOARD_SIZE);
+
+    clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
+
+    setClickCounter(clickCounter + 1);
 
     setGameState({
       ...game,
+      clickedTiles,
       grid,
       hasWon: isBoardEmpty(grid),
     });
@@ -125,13 +131,15 @@ function App() {
           </sup>
         </Header>
       </HeaderBar>
+      <ClickCounterContainer>
+        Clicks:{' '}
+        <ClickCounterSpan hasExceeded={clickCounter > complexity}>
+          {clickCounter}
+        </ClickCounterSpan>{' '}
+        / {complexity}
+      </ClickCounterContainer>
       <Board
-        gameState={{
-          ...game,
-          clickCoords: game.clickCoords.filter(
-            (clickCoords) => !isTuplePresent(clickCoords, clickedSolutionTiles)
-          ),
-        }}
+        gameState={game}
         handleClick={handleTileClick}
         hasWon={game.hasWon}
         isShowingSolution={isShowingSolution}
@@ -156,7 +164,7 @@ function App() {
           {range(MAX_COMPLEXITY + 1).map((n) => {
             return (
               <SelectOption key={n} value={n}>
-                Initial Clicks: {n}
+                Required Clicks: {n}
               </SelectOption>
             );
           })}
