@@ -4,8 +4,6 @@ import colors from '../colors';
 
 const ActionBar = styled.div`
   display: flex;
-  height: 5rem;
-  justify-content: space-between;
   width: 100%;
 `;
 
@@ -20,7 +18,7 @@ const ActionButton = styled.button`
   font-family: 'Roboto', sans-serif;
   font-size: 1.5rem;
   font-weight: 300;
-  height: 100%;
+  height: 5rem;
   text-align: center;
   text-decoration: none;
   transition: all 0.2s;
