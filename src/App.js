@@ -144,49 +144,47 @@ function App() {
           hasWon={game.hasWon}
           isShowingSolution={isShowingSolution}
         />
-        <SpacedContent space={1}>
-          <ActionBar>
-            <ActionButton onClick={restartGame}>Restart</ActionButton>
-            <ActionButton
-              disabled={game.hasWon}
-              isShowingSolution={isShowingSolution}
-              onClick={handleShowSolution}
-            >
-              Solve
-            </ActionButton>
-            <ActionButton onClick={() => newGame({ complexity })}>
-              New
-            </ActionButton>
-          </ActionBar>
-          <ActionBar>
-            <Select
-              id="complexity-select"
-              onChange={handleSelectComplexity}
-              value={complexity}
-            >
-              {range(MAX_COMPLEXITY + 1).map((n) => {
-                return (
-                  <SelectOption key={n} value={n}>
-                    Starting Clicks: {n}
-                  </SelectOption>
-                );
-              })}
-            </Select>
-          </ActionBar>
-          <InstructionsSection>
-            <SubHeader id="instructions">Instructions</SubHeader>
-            <InstructionsList>
-              <InstructionsItem>
-                Clear the board by turning all tiles gray
-              </InstructionsItem>
-              <InstructionsItem>
-                Clicking a tile inverts that tile, and each tile above, below,
-                left, and right of the one clicked
-              </InstructionsItem>
-            </InstructionsList>
-            <FlashHighlight className={highlightInstructions ? 'flash' : ''} />
-          </InstructionsSection>
-        </SpacedContent>
+        <ActionBar>
+          <ActionButton onClick={restartGame}>Restart</ActionButton>
+          <ActionButton
+            disabled={game.hasWon}
+            isShowingSolution={isShowingSolution}
+            onClick={handleShowSolution}
+          >
+            Solve
+          </ActionButton>
+          <ActionButton onClick={() => newGame({ complexity })}>
+            New
+          </ActionButton>
+        </ActionBar>
+        <ActionBar>
+          <Select
+            id="complexity-select"
+            onChange={handleSelectComplexity}
+            value={complexity}
+          >
+            {range(MAX_COMPLEXITY + 1).map((n) => {
+              return (
+                <SelectOption key={n} value={n}>
+                  Starting Clicks: {n}
+                </SelectOption>
+              );
+            })}
+          </Select>
+        </ActionBar>
+        <InstructionsSection>
+          <SubHeader id="instructions">Instructions</SubHeader>
+          <InstructionsList>
+            <InstructionsItem>
+              Clear the board by turning all tiles gray
+            </InstructionsItem>
+            <InstructionsItem>
+              Clicking a tile inverts that tile, and each tile above, below,
+              left, and right of the one clicked
+            </InstructionsItem>
+          </InstructionsList>
+          <FlashHighlight className={highlightInstructions ? 'flash' : ''} />
+        </InstructionsSection>
       </SpacedContent>
     </AppContainer>
   );
