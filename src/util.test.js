@@ -132,27 +132,49 @@ describe('Click Tile', () => {
     expect(newBoard).toEqual(expected);
   });
 
-  test('clickManyTiles', () => {
-    const boardSize = 5;
-    const emptyBoard = getEmptyBoard(boardSize);
+  describe('clickManyTiles', () => {
+    test('should handle no callback', () => {
+      const boardSize = 5;
+      const emptyBoard = getEmptyBoard(boardSize);
 
-    let indices = [7, 11, 0, 6, 22];
+      let clickIndices = [7, 11, 0, 6, 22];
 
-    let newBoard = clickManyTiles(indices, emptyBoard);
-    let expected = [
-      1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0,
-    ];
+      let newBoard = clickManyTiles(clickIndices, emptyBoard);
+      let expected = [
+        1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1,
+        0,
+      ];
 
-    expect(newBoard).toEqual(expected);
+      expect(newBoard).toEqual(expected);
 
-    indices = [10, 0, 8, 11, 17];
+      clickIndices = [10, 0, 8, 11, 17];
 
-    newBoard = clickManyTiles(indices, emptyBoard);
-    expected = [
-      1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0,
-    ];
+      newBoard = clickManyTiles(clickIndices, emptyBoard);
+      expected = [
+        1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0,
+        0,
+      ];
 
-    expect(newBoard).toEqual(expected);
+      expect(newBoard).toEqual(expected);
+    });
+
+    test('should handle callback', () => {
+      const boardSize = 5;
+      const emptyBoard = getEmptyBoard(boardSize);
+
+      const valueCollection = [];
+      const clickCountCollection = [];
+
+      const clickIndices = [7, 11, 0, 6, 22];
+
+      clickManyTiles(clickIndices, emptyBoard, (value, clickCount) => {
+        clickCountCollection.push(clickCount);
+        valueCollection.push(value);
+      });
+
+      expect(valueCollection).toEqual(clickIndices);
+      expect(clickCountCollection).toEqual([0, 1, 2, 3, 4]);
+    });
   });
 
   test('getIndexAbove', () => {
