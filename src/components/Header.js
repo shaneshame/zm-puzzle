@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import colors from '../colors';
 
 const HeaderBar = styled.div`
-  position: relative;
   margin: 1rem 0;
+  position: relative;
   width: 100%;
 `;
 
