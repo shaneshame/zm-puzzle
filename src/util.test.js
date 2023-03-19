@@ -51,6 +51,8 @@ describe('Utility Functions', () => {
     });
   });
 
+  const a;
+
   test('boardIndexToCoords', () => {
     const boardSize = 5;
 
