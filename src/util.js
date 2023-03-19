@@ -24,6 +24,41 @@ const toggleBinary = (v) => {
 
 // Board Util
 
+const flattenBoard = (board) => {
+  const flattened = [];
+
+  board.forEach((rows) => {
+    rows.forEach((value) => {
+      flattened.push(value);
+    });
+  });
+
+  return flattened;
+};
+
+const coordsToFlattenedIndex = (x, y, boardSize) => {
+  return y * boardSize + x;
+};
+
+const flattenedIndexToCoords = (index, boardSize) => {
+  const x = index % boardSize;
+  const y = Math.floor(index / boardSize);
+
+  return [x, y];
+};
+
+const clickedTilesToCoords = (clickedTiles, boardSize) => {
+  const coords = [];
+
+  clickedTiles.forEach((value, index) => {
+    if (!!value) {
+      coords.push(flattenedIndexToCoords(index, boardSize));
+    }
+  });
+
+  return coords;
+};
+
 const getEmptyBoard = (size) => {
   return range(size).map((y) => range(size).map((x) => 0));
 };
@@ -64,6 +99,7 @@ const getSolutionCount = ([x, y], clickCoords) => {
 
 const createNewGame = (boardSize, numClicks) => {
   let grid = getEmptyBoard(boardSize);
+  let clickedTiles = flattenBoard(getEmptyBoard(boardSize));
 
   let clickCoords = [];
 
@@ -79,17 +115,24 @@ const createNewGame = (boardSize, numClicks) => {
 
   clickCoords.forEach(([clickX, clickY]) => {
     grid = clickTile(clickX, clickY, grid);
+
+    const clickedIndex = coordsToFlattenedIndex(clickX, clickY, boardSize);
+    clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
   });
 
   return {
     clickCoords,
+    clickedTiles,
     grid,
   };
 };
 
 export {
   clickTile,
+  clickedTilesToCoords,
+  coordsToFlattenedIndex,
   createNewGame,
+  flattenedIndexToCoords,
   getEmptyBoard,
   getRandomInt,
   getSolutionCount,
@@ -97,4 +140,5 @@ export {
   isBoardEmpty,
   isTuplePresent,
   range,
+  toggleBinary,
 };
