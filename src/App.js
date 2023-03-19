@@ -58,9 +58,13 @@ function App() {
     }
   }, [highlightInstructions]);
 
-  const restartGame = () => {
+  const resetState = () => {
     setIsShowingSolution(false);
     setClickCounter(0);
+  };
+
+  const restartGame = () => {
+    resetState();
 
     setGameState({
       ...startingState,
@@ -73,7 +77,7 @@ function App() {
 
     const game = createNewGame(newBoardSize, newComplexity);
 
-    setClickCounter(0);
+    resetState();
     setGameState(game);
     setStartingState(game);
   };
