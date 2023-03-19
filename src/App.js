@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import colors from './colors';
@@ -23,17 +23,13 @@ import {
 } from './util';
 
 const DEFAULT_COMPLEXITY = 5;
-const MAX_COMPLEXITY = 5;
+const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
 
 const AppContainer = styled.div`
   margin: 0 auto;
   max-width: 100%;
   width: 500px;
-`;
-
-const SpacedActionRow = styled(ActionBar)`
-  margin-top: 2rem;
 `;
 
 const InstructionsAnchor = styled.a`
@@ -57,6 +53,28 @@ const ClickCounterContainer = styled.div`
   width: 100%;
 `;
 
+const SectionBar = styled.div`
+  padding: 1em;
+  position: relative;
+  width: 100%;
+`;
+
+const FlashHighlight = styled.div`
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 5px;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+  transition: opacity 0.4s;
+
+  &.flash {
+    opacity: 1;
+  }
+`;
+
 const ClickCounterSpan = styled.span`
   color: ${(props) =>
     props.hasExceeded ? colors.redSelected : colors.grayUnselected};
@@ -70,6 +88,16 @@ function App() {
   const [game, setGameState] = useState(initialGame);
   const [isShowingSolution, setIsShowingSolution] = useState(false);
   const [clickCounter, setClickCounter] = useState(0);
+  const [highlightInstructions, setHighlightInstructions] = useState(false);
+
+  useEffect(() => {
+    if (highlightInstructions) {
+      const timer = setTimeout(() => {
+        setHighlightInstructions(false);
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightInstructions]);
 
   const restartGame = () => {
     setIsShowingSolution(false);
@@ -127,7 +155,14 @@ function App() {
         <Header>
           <HeaderLink href="/">ZM Puzzle</HeaderLink>
           <sup>
-            <InstructionsAnchor href="#instructions">[?]</InstructionsAnchor>
+            <InstructionsAnchor
+              href="#instructions"
+              onClick={() => {
+                setHighlightInstructions(true);
+              }}
+            >
+              [?]
+            </InstructionsAnchor>
           </sup>
         </Header>
       </HeaderBar>
@@ -157,7 +192,7 @@ function App() {
         </ActionButton>
         <ActionButton onClick={() => newGame({ complexity })}>New</ActionButton>
       </ActionBar>
-      <SpacedActionRow>
+      <ActionBar>
         <Select
           id="complexity-select"
           onChange={handleSelectComplexity}
@@ -166,13 +201,13 @@ function App() {
           {range(MAX_COMPLEXITY + 1).map((n) => {
             return (
               <SelectOption key={n} value={n}>
-                Required Clicks: {n}
+                Starting Clicks: {n}
               </SelectOption>
             );
           })}
         </Select>
-      </SpacedActionRow>
-      <HeaderBar>
+      </ActionBar>
+      <SectionBar>
         <SubHeader id="instructions">Instructions</SubHeader>
         <InstructionLine>
           • Clear the board by turning all tiles gray
@@ -181,7 +216,8 @@ function App() {
           • Clicking a tile inverts that tile, and each tile above, below, left,
           and right of the one clicked.
         </InstructionLine>
-      </HeaderBar>
+        <FlashHighlight className={highlightInstructions ? 'flash' : ''} />
+      </SectionBar>
     </AppContainer>
   );
 }

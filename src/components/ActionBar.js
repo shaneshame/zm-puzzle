@@ -1,12 +1,12 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import colors from "../colors";
+import colors from '../colors';
 
 const ActionBar = styled.div`
   display: flex;
   height: 5em;
   justify-content: space-between;
-  margin: 1rem 0;
+  margin-top: 1rem;
   width: 100%;
 `;
 
@@ -16,9 +16,9 @@ const ActionButton = styled.button`
   border: 0.1em solid ${colors.white};
   box-sizing: border-box;
   color: ${colors.white};
-  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
+  cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
   display: inline-block;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 1.5em;
   font-weight: 300;
   height: 100%;
@@ -26,13 +26,6 @@ const ActionButton = styled.button`
   text-decoration: none;
   transition: all 0.2s;
   width: 100%;
-
-  &:hover {
-    &:not([disabled]) {
-      color: ${colors.black};
-      background-color: ${colors.white};
-    }
-  }
 
   &:disabled {
     background-color: ${colors.grayDark};
@@ -43,6 +36,13 @@ const ActionButton = styled.button`
   @media all and (max-width: 30em) {
     display: block;
     margin: 0.4em auto;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: ${colors.black};
+      background-color: ${colors.white};
+    }
   }
 `;
 
