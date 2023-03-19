@@ -121,7 +121,6 @@ const createNewGame = (boardSize, numClicks) => {
   });
 
   return {
-    clickCoords,
     clickedTiles,
     grid,
   };
