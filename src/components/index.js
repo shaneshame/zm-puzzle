@@ -5,7 +5,8 @@ import { Header, HeaderBar, HeaderLink, SubHeader } from './Header';
 import {
   FlashHighlight,
   InstructionsAnchor,
-  InstructionsLine,
+  InstructionsItem,
+  InstructionsList,
   InstructionsSection,
 } from './Instructions';
 import { Select, SelectOption } from './Select';
@@ -23,7 +24,8 @@ export {
   HeaderBar,
   HeaderLink,
   InstructionsAnchor,
-  InstructionsLine,
+  InstructionsItem,
+  InstructionsList,
   InstructionsSection,
   Select,
   SelectOption,

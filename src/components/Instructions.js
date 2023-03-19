@@ -5,12 +5,12 @@ import colors from '../colors';
 const FlashHighlight = styled.div`
   background-color: rgba(255, 255, 255, 0.75);
   border-radius: 5px;
-  bottom: 0;
+  bottom: -0.5rem;
   left: 0;
   opacity: 0;
   position: absolute;
   right: 0;
-  top: 0.5rem;
+  top: -0.5rem;
   transition: opacity 0.4s;
 
   &.flash {
@@ -27,20 +27,24 @@ const InstructionsAnchor = styled.a`
   }
 `;
 
-const InstructionsLine = styled.p`
-  color: ${colors.grayUnselected};
-  font-weight: 500;
-`;
-
 const InstructionsSection = styled.section`
   padding: 0 1rem;
   position: relative;
   width: 100%;
 `;
 
+const InstructionsList = styled.ul`
+  color: ${colors.grayUnselected};
+  font-weight: 500;
+  padding-left: 1.5rem;
+`;
+
+const InstructionsItem = styled.li``;
+
 export {
   FlashHighlight,
   InstructionsAnchor,
-  InstructionsLine,
+  InstructionsItem,
+  InstructionsList,
   InstructionsSection,
 };
