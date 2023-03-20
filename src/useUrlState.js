@@ -1,79 +1,99 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import queryString from 'query-string';
 
-const getSearchParams = () => {
-  return new URLSearchParams(window.location.search);
+const defaultParseOptions = {
+  arrayFormat: 'comma',
+  parseNumbers: true,
+  parseBooleans: true,
 };
 
-const updateSearchParams = (searchParams) => {
-  const url = new URL(window.location);
-
-  [...searchParams.entries()].forEach(([key, value]) => {
-    url.searchParams.set(key, value);
-  });
-
-  window.history.pushState({}, '', url);
+const defaultStringifyOptions = {
+  arrayFormat: 'comma',
 };
 
-const stateToSearchString = (state) => {
-  const searchParams = new URLSearchParams(state);
-
-  return searchParams.toString();
+const isFunction = (v) => {
+  return typeof v === 'function';
 };
 
-const searchStringToState = (string) => {
-  const searchParams = new URLSearchParams(string);
+const updateSearchParams = (query) => {
+  const url = new URL(`${window.location.origin}/?${query}`);
 
-  return Object.fromEntries([...searchParams.entries()]);
+  window.history.replaceState({}, '', url);
 };
 
-const pushStateToUrl = (state = {}) => {
-  const searchParams = getSearchParams();
-
-  Object.entries(state).forEach(([key, value]) => {
-    searchParams.set(key, value);
-  });
-
-  updateSearchParams(searchParams);
-};
-
-function useUrlState(initialState, serialize, deserialize) {
-  const searchParams = getSearchParams();
-
-  const currentState = Object.entries(initialState).reduce(
-    (acc, [key, value]) => {
-      const currentValue = searchParams.get(key);
-
-      return {
-        ...acc,
-        [key]: currentValue ? deserialize(currentValue) : value,
-      };
-    },
-    {},
-  );
-
-  const [state, setState] = useState(currentState);
+function useLocation() {
+  // const [location, setLocation] = useState(window.location);
 
   // useEffect(() => {
-  //   if (currentSearchString !== stateToSearchString(state)) {
-  //     setState(searchStringToState(currentSearchString));
-  //   }
-  // }, [currentSearchString, state]);
+  //   setLocation(window.location);
+  // }, [window.location]);
 
-  const setUrlState = (newState) => {
-    setState({
-      ...state,
-      ...newState,
+  return window.location;
+}
+
+function useUrlState(initialState = {}, options = {}) {
+  const location = useLocation();
+
+  const { parseOptions = {}, stringifyOptions = {} } = options;
+
+  const mergedParseOptions = useMemo(() => {
+    return { ...defaultParseOptions, ...parseOptions };
+  }, [parseOptions]);
+
+  const mergedStringifyOptions = useMemo(() => {
+    return {
+      ...defaultStringifyOptions,
+      ...stringifyOptions,
+    };
+  }, [stringifyOptions]);
+
+  const stateFromUrl = useMemo(() => {
+    return queryString.parse(location.search, mergedParseOptions);
+  }, [location.search, mergedParseOptions]);
+
+  const [currentState, setSearch] = useState(() => {
+    const init = isFunction(initialState) ? initialState() : initialState;
+
+    return {
+      ...init,
+      ...stateFromUrl,
+    };
+  });
+
+  const mergedState = useMemo(() => {
+    return {
+      ...currentState,
+      ...stateFromUrl,
+    };
+  }, [currentState, stateFromUrl]);
+
+  const setUrlState = (state) => {
+    setSearch((previousState) => {
+      const passedState = isFunction(state) ? state(mergedState) : state;
+
+      const newState = {
+        ...previousState,
+        ...passedState,
+      };
+
+      const newString = queryString.stringify(newState, mergedStringifyOptions);
+
+      updateSearchParams(newString);
+
+      return newState;
     });
-
-    pushStateToUrl(
-      serialize({
-        ...state,
-        ...newState,
-      }),
-    );
   };
 
-  return [state, setUrlState];
+  // useEffect(() => {
+  //   const newString = queryString.stringify(
+  //     mergedState,
+  //     mergedStringifyOptions,
+  //   );
+
+  //   updateSearchParams(newString);
+  // }, [mergedState, mergedStringifyOptions]);
+
+  return [mergedState, setUrlState];
 }
 
 export default useUrlState;

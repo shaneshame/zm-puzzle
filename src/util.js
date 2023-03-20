@@ -49,8 +49,12 @@ const boardIndexToCoords = (index, boardSize) => {
 };
 
 const boardToMatrix = (board) => {
-  const matrixSize = Math.sqrt(board.length);
-  return chunk(board, matrixSize);
+  if (board) {
+    const matrixSize = Math.sqrt(board.length);
+    return chunk(board, matrixSize);
+  }
+
+  return null;
 };
 
 const getEmptyBoard = (size) => {
@@ -58,7 +62,7 @@ const getEmptyBoard = (size) => {
 };
 
 const isBoardEmpty = (board) => {
-  return board.every(isBinaryFalse);
+  return board && board.every(isBinaryFalse);
 };
 
 const getIndexAbove = (index, boardSize) => {
@@ -126,7 +130,6 @@ const createNewGame = (boardSize, numClicks) => {
 
   return {
     board,
-    boardSize,
     clickedTiles,
   };
 };
@@ -145,6 +148,7 @@ export {
   getIndexLeft,
   getIndexRight,
   getRandomInt,
+  getUniqueIndices,
   isBinaryTrue,
   isBoardEmpty,
   range,

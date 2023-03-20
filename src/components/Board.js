@@ -35,9 +35,10 @@ const SolutionIndicator = styled.span`
 const Board = ({ game, handleClick, hasWon, isShowingSolution }) => {
   const { board, boardSize, clickedTiles } = game;
 
-  const boardMatrix = boardToMatrix(board, boardSize);
+  const boardMatrix = boardToMatrix(board);
 
   return (
+    boardSize &&
     boardMatrix && (
       <BoardContainer boardSize={boardSize}>
         {boardMatrix.map((rows, y) =>

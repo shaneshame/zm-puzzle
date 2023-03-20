@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import useUrlState from './useUrlState';
@@ -35,29 +35,46 @@ const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
 
+const initialAppState = {
+  isShowingSolution: false,
+  clickCounter: 0,
+  hasWon: false,
+};
+
 const AppContainer = styled.div`
   margin: 0 auto;
   max-width: 100%;
   width: 500px;
 `;
 
-const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
-
 function App() {
-  const [urlState, setUrlState] = useUrlState(
-    {
-      complexity: DEFAULT_COMPLEXITY,
+  const [appState, setAppState] = useState(initialAppState);
+  const [highlightInstructions, setHighlightInstructions] = useState(false);
+
+  const [urlState, setUrlState] = useUrlState({
+    boardSize: BOARD_SIZE,
+    complexity: DEFAULT_COMPLEXITY,
+  });
+
+  const setComplexity = useCallback(
+    (value) => {
+      setUrlState({
+        complexity: value,
+      });
     },
-    ({ complexity }) => ({ complexity: String.toString(complexity) }),
-    ({ complexity }) => ({ complexity: Number(complexity) }),
+    [setUrlState],
   );
 
-  const [complexity, setComplexity] = useState(DEFAULT_COMPLEXITY);
-  const [startingState, setStartingState] = useState(initialGame);
-  const [game, setGameState] = useState(initialGame);
-  const [isShowingSolution, setIsShowingSolution] = useState(false);
-  const [clickCounter, setClickCounter] = useState(0);
-  const [highlightInstructions, setHighlightInstructions] = useState(false);
+  const {
+    board,
+    boardSize,
+    clickedTiles,
+    complexity,
+    startingBoard,
+    startingClickedTiles,
+  } = urlState;
+
+  const { clickCounter, hasWon, isShowingSolution } = appState;
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -68,32 +85,39 @@ function App() {
     }
   }, [highlightInstructions]);
 
-  const resetState = () => {
-    setIsShowingSolution(false);
-    setClickCounter(0);
+  const resetAppState = () => {
+    setAppState(initialAppState);
   };
 
   const restartGame = () => {
-    resetState();
+    resetAppState();
 
-    setGameState({
-      ...startingState,
+    setUrlState({
+      board: startingBoard,
+      clickedTiles: startingClickedTiles,
     });
   };
 
-  const newGame = (settings = {}) => {
-    const newComplexity = settings.complexity || DEFAULT_COMPLEXITY;
-    const newBoardSize = settings.boardSize || BOARD_SIZE;
+  const newGame = (options = {}) => {
+    const newBoardSize = options.boardSize || boardSize;
+    const newComplexity = options.complexity || complexity;
 
     const game = createNewGame(newBoardSize, newComplexity);
 
-    resetState();
-    setGameState(game);
-    setStartingState(game);
+    resetAppState();
+
+    setUrlState({
+      ...game,
+      startingBoard: game.board,
+      startingClickedTiles: game.clickedTiles,
+    });
   };
 
   const handleShowSolution = () => {
-    setIsShowingSolution(!isShowingSolution);
+    setAppState({
+      ...appState,
+      isShowingSolution: !isShowingSolution,
+    });
   };
 
   const handleSelectComplexity = (event) => {
@@ -105,21 +129,26 @@ function App() {
   };
 
   const handleTileClick = (clickedIndex) => {
-    const board = clickTile(clickedIndex, game.board);
+    const newBoard = clickTile(clickedIndex, board);
+    const newClickedTiles = [...clickedTiles];
 
-    const clickedTiles = [...game.clickedTiles];
+    newClickedTiles[clickedIndex] = toggleBinary(newClickedTiles[clickedIndex]);
 
-    clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
+    setUrlState({
+      board: newBoard,
+      clickedTiles: newClickedTiles,
+    });
 
-    setClickCounter(clickCounter + 1);
-
-    setGameState({
-      ...game,
-      clickedTiles,
-      board,
-      hasWon: isBoardEmpty(board),
+    setAppState({
+      ...appState,
+      clickCounter: clickCounter + 1,
+      hasWon: isBoardEmpty(newBoard),
     });
   };
+
+  useEffect(() => {
+    newGame();
+  }, []);
 
   return (
     <AppContainer>
@@ -149,15 +178,15 @@ function App() {
       </ClickCounterContainer>
       <SpacedContent space={0.5}>
         <Board
-          game={game}
+          game={{ board, boardSize, clickedTiles }}
           handleClick={handleTileClick}
-          hasWon={game.hasWon}
+          hasWon={hasWon}
           isShowingSolution={isShowingSolution}
         />
         <ActionBar>
           <ActionButton onClick={restartGame}>Restart</ActionButton>
           <ActionButton
-            disabled={game.hasWon}
+            disabled={hasWon}
             isShowingSolution={isShowingSolution}
             onClick={handleShowSolution}
           >
