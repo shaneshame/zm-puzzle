@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import useUrlState from './useUrlState';
+
 import {
   ActionBar,
   ActionButton,
@@ -42,6 +44,14 @@ const AppContainer = styled.div`
 const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
 
 function App() {
+  const [urlState, setUrlState] = useUrlState(
+    {
+      complexity: DEFAULT_COMPLEXITY,
+    },
+    ({ complexity }) => ({ complexity: String.toString(complexity) }),
+    ({ complexity }) => ({ complexity: Number(complexity) }),
+  );
+
   const [complexity, setComplexity] = useState(DEFAULT_COMPLEXITY);
   const [startingState, setStartingState] = useState(initialGame);
   const [game, setGameState] = useState(initialGame);
