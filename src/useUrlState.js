@@ -13,6 +13,21 @@ const defaultStringifyOptions = {
   arrayFormat: 'comma',
 };
 
+const getOptions = (options = {}) => {
+  const { parseOptions = {}, stringifyOptions = {} } = options;
+
+  return {
+    parseOptions: {
+      ...defaultParseOptions,
+      ...parseOptions,
+    },
+    stringifyOptions: {
+      ...defaultStringifyOptions,
+      ...stringifyOptions,
+    },
+  };
+};
+
 const updateSearchParams = (query) => {
   const url = new URL(`${window.location.origin}/?${query}`);
 
@@ -22,22 +37,11 @@ const updateSearchParams = (query) => {
 function useUrlState(initialState = {}, options = {}) {
   const location = window.location;
 
-  const { parseOptions = {}, stringifyOptions = {} } = options;
-
-  const mergedParseOptions = useMemo(() => {
-    return { ...defaultParseOptions, ...parseOptions };
-  }, [parseOptions]);
-
-  const mergedStringifyOptions = useMemo(() => {
-    return {
-      ...defaultStringifyOptions,
-      ...stringifyOptions,
-    };
-  }, [stringifyOptions]);
+  const { parseOptions = {}, stringifyOptions = {} } = getOptions(options);
 
   const stateFromUrl = useMemo(() => {
-    return queryString.parse(location.search, mergedParseOptions);
-  }, [location.search, mergedParseOptions]);
+    return queryString.parse(location.search, parseOptions);
+  }, [location.search, parseOptions]);
 
   const [currentState, setSearch] = useState(() => {
     const init = isFunction(initialState) ? initialState() : initialState;
@@ -64,7 +68,7 @@ function useUrlState(initialState = {}, options = {}) {
         ...passedState,
       };
 
-      const newString = queryString.stringify(newState, mergedStringifyOptions);
+      const newString = queryString.stringify(newState, stringifyOptions);
 
       updateSearchParams(newString);
 
