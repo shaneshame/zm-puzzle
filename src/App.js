@@ -148,7 +148,7 @@ function App() {
 
   useEffect(() => {
     newGame();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AppContainer>

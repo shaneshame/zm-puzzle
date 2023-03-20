@@ -31,6 +31,10 @@ const isBinaryFalse = (v) => {
   return v % 2 === 0;
 };
 
+const isFunction = (v) => {
+  return typeof v === 'function';
+};
+
 const toggleBinary = (v) => {
   return (v + 1) % 2;
 };
@@ -138,8 +142,8 @@ export {
   boardIndexToCoords,
   boardToMatrix,
   chunk,
-  clickTile,
   clickManyTiles,
+  clickTile,
   coordsToBoardIndex,
   createNewGame,
   getEmptyBoard,
@@ -151,6 +155,7 @@ export {
   getUniqueIndices,
   isBinaryTrue,
   isBoardEmpty,
+  isFunction,
   range,
   toggleBinary,
 };

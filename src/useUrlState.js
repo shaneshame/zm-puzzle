@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import queryString from 'query-string';
+
+import { isFunction } from './util';
 
 const defaultParseOptions = {
   arrayFormat: 'comma',
@@ -11,28 +13,14 @@ const defaultStringifyOptions = {
   arrayFormat: 'comma',
 };
 
-const isFunction = (v) => {
-  return typeof v === 'function';
-};
-
 const updateSearchParams = (query) => {
   const url = new URL(`${window.location.origin}/?${query}`);
 
   window.history.replaceState({}, '', url);
 };
 
-function useLocation() {
-  // const [location, setLocation] = useState(window.location);
-
-  // useEffect(() => {
-  //   setLocation(window.location);
-  // }, [window.location]);
-
-  return window.location;
-}
-
 function useUrlState(initialState = {}, options = {}) {
-  const location = useLocation();
+  const location = window.location;
 
   const { parseOptions = {}, stringifyOptions = {} } = options;
 
@@ -83,15 +71,6 @@ function useUrlState(initialState = {}, options = {}) {
       return newState;
     });
   };
-
-  // useEffect(() => {
-  //   const newString = queryString.stringify(
-  //     mergedState,
-  //     mergedStringifyOptions,
-  //   );
-
-  //   updateSearchParams(newString);
-  // }, [mergedState, mergedStringifyOptions]);
 
   return [mergedState, setUrlState];
 }
