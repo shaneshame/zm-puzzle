@@ -7,8 +7,7 @@ import {
   ActionBar,
   ActionButton,
   Board,
-  ClickCounterContainer,
-  ClickCounterSpan,
+  ClickCounter,
   FlashHighlight,
   Header,
   HeaderBar,
@@ -37,7 +36,7 @@ const BOARD_SIZE = 5;
 
 const initialAppState = {
   isShowingSolution: false,
-  clickCounter: 0,
+  clickCount: 0,
   hasWon: false,
 };
 
@@ -74,7 +73,7 @@ function App() {
     startingClickedTiles,
   } = urlState;
 
-  const { clickCounter, hasWon, isShowingSolution } = appState;
+  const { clickCount, hasWon, isShowingSolution } = appState;
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -141,14 +140,18 @@ function App() {
 
     setAppState({
       ...appState,
-      clickCounter: clickCounter + 1,
+      clickCount: clickCount + 1,
       hasWon: isBoardEmpty(newBoard),
     });
   };
 
   useEffect(() => {
-    newGame();
+    if (!board) {
+      newGame();
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // console.log('clickedTiles', clickedTiles);
 
   return (
     <AppContainer>
@@ -167,15 +170,12 @@ function App() {
           </sup>
         </Header>
       </HeaderBar>
-      <ClickCounterContainer>
-        Clicks:{' '}
-        <ClickCounterSpan
-          hasExceeded={complexity > 0 && clickCounter > complexity}
-        >
-          {clickCounter}
-        </ClickCounterSpan>
-        {complexity > 0 && `/${complexity}`}
-      </ClickCounterContainer>
+      <ClickCounter
+        clickedTiles={clickedTiles}
+        complexity={complexity}
+        count={clickCount}
+        label="Clicks: "
+      />
       <SpacedContent space={0.5}>
         <Board
           game={{ board, boardSize, clickedTiles }}
@@ -201,7 +201,10 @@ function App() {
           onChange={handleSelectComplexity}
           value={complexity}
         >
-          {range(MAX_COMPLEXITY + 1).map((n) => {
+          <SelectOption key="custom" value={0}>
+            Custom
+          </SelectOption>
+          {range(1, MAX_COMPLEXITY + 1).map((n) => {
             return (
               <SelectOption key={n} value={n}>
                 Starting Clicks: {n}

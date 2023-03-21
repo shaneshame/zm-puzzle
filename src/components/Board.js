@@ -18,7 +18,7 @@ const Tile = styled.div`
   align-items: center;
   aspect-ratio: 1;
   background-color: ${(props) =>
-    props.isSelected ? colors.redSelected : colors.grayUnselected};
+    props.isSelected ? colors.red : colors.grayUnselected};
   border: 2px solid black;
   cursor: pointer;
   display: flex;

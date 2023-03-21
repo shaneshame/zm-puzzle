@@ -2,8 +2,17 @@
 
 const noop = () => {};
 
-const range = (max = 0) => {
-  return [...Array(max)].map((_, index) => index);
+const range = (min, max, step) => {
+  if (max === undefined) {
+    max = min;
+    min = 0;
+  }
+
+  step = step || (min < max ? 1 : -1);
+
+  const length = Math.max(Math.ceil((max - min) / (step || 1)), 0);
+
+  return [...Array(length)].map((_, index) => min + index * step);
 };
 
 const chunk = (arr = [], size = 1) => {
