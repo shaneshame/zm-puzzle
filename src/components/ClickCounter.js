@@ -13,25 +13,23 @@ const Clicks = styled.span`
   color: ${(props) => (props.hasExceeded ? colors.red : colors.grayUnselected)};
 `;
 
+const DELIMITER = '/';
+
 const ClickCounter = ({ clickedTiles = [], complexity, count, label }) => {
   const numUniqueClicks = clickedTiles.filter(Boolean).length;
-
-  const innerHtml =
-    complexity > 0 ? (
-      <>
-        <Clicks hasExceeded={complexity > 0 && count > complexity}>
-          {count}
-        </Clicks>
-        /{complexity}
-      </>
-    ) : (
-      <>_/{numUniqueClicks}</>
-    );
 
   return (
     <Container>
       {label}
-      {innerHtml}
+      {complexity > 0 ? (
+        <>
+          <Clicks hasExceeded={count > complexity}>{count}</Clicks>
+          {DELIMITER}
+          {complexity}
+        </>
+      ) : (
+        numUniqueClicks
+      )}
     </Container>
   );
 };

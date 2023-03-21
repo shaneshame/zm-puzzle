@@ -76,6 +76,19 @@ function App() {
   const { clickCount, hasWon, isShowingSolution } = appState;
 
   useEffect(() => {
+    // On Load Settings
+    if (!board) {
+      newGame();
+    } else if (complexity === 0) {
+      setUrlState({
+        complexity: clickedTiles.filter(Boolean).length,
+        startingBoard: board,
+        startingClickedTiles: clickedTiles,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     if (highlightInstructions) {
       const timer = setTimeout(() => {
         setHighlightInstructions(false);
@@ -113,10 +126,10 @@ function App() {
   };
 
   const handleShowSolution = () => {
-    setAppState({
-      ...appState,
+    setAppState((currentAppState) => ({
+      ...currentAppState,
       isShowingSolution: !isShowingSolution,
-    });
+    }));
   };
 
   const handleSelectComplexity = (event) => {
@@ -138,20 +151,12 @@ function App() {
       clickedTiles: newClickedTiles,
     });
 
-    setAppState({
-      ...appState,
+    setAppState((currentAppState) => ({
+      ...currentAppState,
       clickCount: clickCount + 1,
       hasWon: isBoardEmpty(newBoard),
-    });
+    }));
   };
-
-  useEffect(() => {
-    if (!board) {
-      newGame();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // console.log('clickedTiles', clickedTiles);
 
   return (
     <AppContainer>
@@ -202,7 +207,7 @@ function App() {
           value={complexity}
         >
           <SelectOption key="custom" value={0}>
-            Custom
+            Custom{complexity > MAX_COMPLEXITY && ` (${complexity})`}
           </SelectOption>
           {range(1, MAX_COMPLEXITY + 1).map((n) => {
             return (

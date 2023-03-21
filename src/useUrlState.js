@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import queryString from 'query-string';
 
 import { isFunction } from './util';
@@ -37,7 +37,9 @@ const updateSearchParams = (query) => {
 function useUrlState(initialState = {}, options = {}) {
   const location = window.location;
 
-  const { parseOptions = {}, stringifyOptions = {} } = getOptions(options);
+  const { parseOptions = {}, stringifyOptions = {} } = useMemo(() => {
+    return getOptions(options);
+  }, [options]);
 
   const stateFromUrl = useMemo(() => {
     return queryString.parse(location.search, parseOptions);
@@ -59,22 +61,25 @@ function useUrlState(initialState = {}, options = {}) {
     };
   }, [currentState, stateFromUrl]);
 
-  const setUrlState = (state) => {
-    setSearch((previousState) => {
-      const passedState = isFunction(state) ? state(mergedState) : state;
+  const setUrlState = useCallback(
+    (state) => {
+      setSearch((previousState) => {
+        const passedState = isFunction(state) ? state(mergedState) : state;
 
-      const newState = {
-        ...previousState,
-        ...passedState,
-      };
+        const newState = {
+          ...previousState,
+          ...passedState,
+        };
 
-      const newString = queryString.stringify(newState, stringifyOptions);
+        const newString = queryString.stringify(newState, stringifyOptions);
 
-      updateSearchParams(newString);
+        updateSearchParams(newString);
 
-      return newState;
-    });
-  };
+        return newState;
+      });
+    },
+    [mergedState, stringifyOptions],
+  );
 
   return [mergedState, setUrlState];
 }
