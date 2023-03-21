@@ -1,6 +1,6 @@
 import { ActionBar, ActionButton } from './ActionBar';
 import { Board } from './Board';
-import { ClickCounterContainer, ClickCounterSpan } from './ClickCounter';
+import { ClickCounter } from './ClickCounter';
 import { Header, HeaderBar, HeaderLink, SubHeader } from './Header';
 import {
   FlashHighlight,
@@ -17,8 +17,7 @@ export {
   ActionBar,
   ActionButton,
   Board,
-  ClickCounterContainer,
-  ClickCounterSpan,
+  ClickCounter,
   FlashHighlight,
   Header,
   HeaderBar,
