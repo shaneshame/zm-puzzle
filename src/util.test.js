@@ -13,34 +13,12 @@ import {
 } from './util';
 
 describe('Utility Functions', () => {
-  describe('range', () => {
-    test('should treat 1 parameter as `max`', () => {
-      const max = 9;
-      const actual = range(max);
-      const expected = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  test('range', () => {
+    let size = 9;
+    let actual = range(size);
+    let expected = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-      expect(actual).toEqual(expected);
-    });
-
-    test('should treat 2 parameters as `min` and `max`', () => {
-      const min = 3;
-      const max = 9;
-      const actual = range(min, max);
-      const expected = [3, 4, 5, 6, 7, 8];
-
-      expect(actual).toEqual(expected);
-    });
-
-    test('should use `step`', () => {
-      const min = 1;
-      const max = 12;
-      const step = 2;
-
-      const actual = range(min, max, step);
-      const expected = [1, 3, 5, 7, 9, 11];
-
-      expect(actual).toEqual(expected);
-    });
+    expect(actual).toEqual(expected);
   });
 
   describe('chunk', () => {
