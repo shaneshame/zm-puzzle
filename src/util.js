@@ -2,17 +2,8 @@
 
 const noop = () => {};
 
-const range = (min, max, step) => {
-  if (max === undefined) {
-    max = min;
-    min = 0;
-  }
-
-  step = step || (min < max ? 1 : -1);
-
-  const length = Math.max(Math.ceil((max - min) / (step || 1)), 0);
-
-  return [...Array(length)].map((_, index) => min + index * step);
+const range = (max = 0) => {
+  return [...Array(max)].map((_, index) => index);
 };
 
 const chunk = (arr = [], size = 1) => {
@@ -40,10 +31,6 @@ const isBinaryFalse = (v) => {
   return v % 2 === 0;
 };
 
-const isFunction = (v) => {
-  return typeof v === 'function';
-};
-
 const toggleBinary = (v) => {
   return (v + 1) % 2;
 };
@@ -62,12 +49,8 @@ const boardIndexToCoords = (index, boardSize) => {
 };
 
 const boardToMatrix = (board) => {
-  if (board) {
-    const matrixSize = Math.sqrt(board.length);
-    return chunk(board, matrixSize);
-  }
-
-  return null;
+  const matrixSize = Math.sqrt(board.length);
+  return chunk(board, matrixSize);
 };
 
 const getEmptyBoard = (size) => {
@@ -75,7 +58,7 @@ const getEmptyBoard = (size) => {
 };
 
 const isBoardEmpty = (board) => {
-  return board && board.every(isBinaryFalse);
+  return board.every(isBinaryFalse);
 };
 
 const getIndexAbove = (index, boardSize) => {
@@ -143,6 +126,7 @@ const createNewGame = (boardSize, numClicks) => {
 
   return {
     board,
+    boardSize,
     clickedTiles,
   };
 };
@@ -151,8 +135,8 @@ export {
   boardIndexToCoords,
   boardToMatrix,
   chunk,
-  clickManyTiles,
   clickTile,
+  clickManyTiles,
   coordsToBoardIndex,
   createNewGame,
   getEmptyBoard,
@@ -161,10 +145,8 @@ export {
   getIndexLeft,
   getIndexRight,
   getRandomInt,
-  getUniqueIndices,
   isBinaryTrue,
   isBoardEmpty,
-  isFunction,
   range,
   toggleBinary,
 };
