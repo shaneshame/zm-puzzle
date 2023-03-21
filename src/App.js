@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-import useUrlState from './useUrlState';
 
 import {
   ActionBar,
   ActionButton,
   Board,
-  ClickCounter,
+  ClickCounterContainer,
+  ClickCounterSpan,
   FlashHighlight,
   Header,
   HeaderBar,
@@ -34,59 +33,21 @@ const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
 
-const initialAppState = {
-  isShowingSolution: false,
-  clickCount: 0,
-  hasWon: false,
-};
-
 const AppContainer = styled.div`
   margin: 0 auto;
   max-width: 100%;
   width: 500px;
 `;
 
+const initialGame = createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY);
+
 function App() {
-  const [appState, setAppState] = useState(initialAppState);
+  const [complexity, setComplexity] = useState(DEFAULT_COMPLEXITY);
+  const [startingState, setStartingState] = useState(initialGame);
+  const [game, setGameState] = useState(initialGame);
+  const [isShowingSolution, setIsShowingSolution] = useState(false);
+  const [clickCounter, setClickCounter] = useState(0);
   const [highlightInstructions, setHighlightInstructions] = useState(false);
-
-  const [urlState, setUrlState] = useUrlState({
-    boardSize: BOARD_SIZE,
-    complexity: DEFAULT_COMPLEXITY,
-  });
-
-  const setComplexity = useCallback(
-    (value) => {
-      setUrlState({
-        complexity: value,
-      });
-    },
-    [setUrlState],
-  );
-
-  const {
-    board,
-    boardSize,
-    clickedTiles,
-    complexity,
-    startingBoard,
-    startingClickedTiles,
-  } = urlState;
-
-  const { clickCount, hasWon, isShowingSolution } = appState;
-
-  useEffect(() => {
-    // On Load Settings
-    if (!board) {
-      newGame();
-    } else if (complexity === 0) {
-      setUrlState({
-        complexity: clickedTiles.filter(Boolean).length,
-        startingBoard: board,
-        startingClickedTiles: clickedTiles,
-      });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -97,39 +58,32 @@ function App() {
     }
   }, [highlightInstructions]);
 
-  const resetAppState = () => {
-    setAppState(initialAppState);
+  const resetState = () => {
+    setIsShowingSolution(false);
+    setClickCounter(0);
   };
 
   const restartGame = () => {
-    resetAppState();
+    resetState();
 
-    setUrlState({
-      board: startingBoard,
-      clickedTiles: startingClickedTiles,
+    setGameState({
+      ...startingState,
     });
   };
 
-  const newGame = (options = {}) => {
-    const newBoardSize = options.boardSize || boardSize;
-    const newComplexity = options.complexity || complexity;
+  const newGame = (settings = {}) => {
+    const newComplexity = settings.complexity || DEFAULT_COMPLEXITY;
+    const newBoardSize = settings.boardSize || BOARD_SIZE;
 
     const game = createNewGame(newBoardSize, newComplexity);
 
-    resetAppState();
-
-    setUrlState({
-      ...game,
-      startingBoard: game.board,
-      startingClickedTiles: game.clickedTiles,
-    });
+    resetState();
+    setGameState(game);
+    setStartingState(game);
   };
 
   const handleShowSolution = () => {
-    setAppState((currentAppState) => ({
-      ...currentAppState,
-      isShowingSolution: !isShowingSolution,
-    }));
+    setIsShowingSolution(!isShowingSolution);
   };
 
   const handleSelectComplexity = (event) => {
@@ -141,21 +95,20 @@ function App() {
   };
 
   const handleTileClick = (clickedIndex) => {
-    const newBoard = clickTile(clickedIndex, board);
-    const newClickedTiles = [...clickedTiles];
+    const board = clickTile(clickedIndex, game.board);
 
-    newClickedTiles[clickedIndex] = toggleBinary(newClickedTiles[clickedIndex]);
+    const clickedTiles = [...game.clickedTiles];
 
-    setUrlState({
-      board: newBoard,
-      clickedTiles: newClickedTiles,
+    clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
+
+    setClickCounter(clickCounter + 1);
+
+    setGameState({
+      ...game,
+      clickedTiles,
+      board,
+      hasWon: isBoardEmpty(board),
     });
-
-    setAppState((currentAppState) => ({
-      ...currentAppState,
-      clickCount: clickCount + 1,
-      hasWon: isBoardEmpty(newBoard),
-    }));
   };
 
   return (
@@ -175,23 +128,26 @@ function App() {
           </sup>
         </Header>
       </HeaderBar>
-      <ClickCounter
-        clickedTiles={clickedTiles}
-        complexity={complexity}
-        count={clickCount}
-        label="Clicks: "
-      />
+      <ClickCounterContainer>
+        Clicks:{' '}
+        <ClickCounterSpan
+          hasExceeded={complexity > 0 && clickCounter > complexity}
+        >
+          {clickCounter}
+        </ClickCounterSpan>
+        {complexity > 0 && `/${complexity}`}
+      </ClickCounterContainer>
       <SpacedContent space={0.5}>
         <Board
-          game={{ board, boardSize, clickedTiles }}
+          game={game}
           handleClick={handleTileClick}
-          hasWon={hasWon}
+          hasWon={game.hasWon}
           isShowingSolution={isShowingSolution}
         />
         <ActionBar>
           <ActionButton onClick={restartGame}>Restart</ActionButton>
           <ActionButton
-            disabled={hasWon}
+            disabled={game.hasWon}
             isShowingSolution={isShowingSolution}
             onClick={handleShowSolution}
           >
@@ -206,10 +162,7 @@ function App() {
           onChange={handleSelectComplexity}
           value={complexity}
         >
-          <SelectOption key="custom" value={0}>
-            Custom{complexity > MAX_COMPLEXITY && ` (${complexity})`}
-          </SelectOption>
-          {range(1, MAX_COMPLEXITY + 1).map((n) => {
+          {range(MAX_COMPLEXITY + 1).map((n) => {
             return (
               <SelectOption key={n} value={n}>
                 Starting Clicks: {n}
