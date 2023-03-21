@@ -17,6 +17,7 @@ const getOptions = (options = {}) => {
   const { parseOptions = {}, stringifyOptions = {} } = options;
 
   return {
+    ...options,
     parseOptions: {
       ...defaultParseOptions,
       ...parseOptions,

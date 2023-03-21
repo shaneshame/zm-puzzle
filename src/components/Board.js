@@ -32,9 +32,14 @@ const SolutionIndicator = styled.span`
   width: 3rem;
 `;
 
-const Board = ({ game, handleClick, hasWon, isShowingSolution }) => {
-  const { board, boardSize, clickedTiles } = game;
-
+const Board = ({
+  board,
+  boardSize,
+  clickedTiles,
+  handleClick,
+  hasWon,
+  isShowingSolution,
+}) => {
   const boardMatrix = boardToMatrix(board);
 
   return (

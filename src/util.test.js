@@ -87,32 +87,51 @@ describe('Utility Functions', () => {
     expect(actual).toEqual(expected);
   });
 
-  test('getEmptyBoard', () => {
-    const boardSize = 5;
-    let emptyBoard = getEmptyBoard(boardSize);
+  describe('getEmptyBoard', () => {
+    test('should return correct', () => {
+      const boardSize = 5;
+      const emptyBoard = getEmptyBoard(boardSize);
 
-    let expected = [
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ];
+      const expected = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0,
+      ];
 
-    expect(emptyBoard).toEqual(expected);
+      expect(emptyBoard).toEqual(expected);
+    });
+
+    test('should handle null input', () => {
+      const actual = getEmptyBoard();
+      const expected = [];
+
+      expect(actual).toEqual(expected);
+    });
   });
 
-  test('boardToMatrix', () => {
-    const boardSize = 5;
-    let emptyBoard = getEmptyBoard(boardSize);
+  describe('boardToMatrix', () => {
+    test('should return correct', () => {
+      const boardSize = 5;
+      const emptyBoard = getEmptyBoard(boardSize);
 
-    let matrix = boardToMatrix(emptyBoard);
+      const matrix = boardToMatrix(emptyBoard);
 
-    let expected = [
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-    ];
+      const expected = [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+      ];
 
-    expect(matrix).toEqual(expected);
+      expect(matrix).toEqual(expected);
+    });
+
+    test('should handle null input', () => {
+      const actual = boardToMatrix();
+      const expected = [];
+
+      expect(actual).toEqual(expected);
+    });
   });
 });
 

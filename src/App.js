@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import useUrlState from './useUrlState';
@@ -34,59 +34,43 @@ const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
 
-const initialAppState = {
-  isShowingSolution: false,
-  clickCount: 0,
-  hasWon: false,
-};
-
 const AppContainer = styled.div`
   margin: 0 auto;
   max-width: 100%;
   width: 500px;
 `;
 
+const getInitialAppState = () => {
+  return {
+    isShowingSolution: false,
+    clickCount: 0,
+    hasWon: false,
+  };
+};
+
 function App() {
-  const [appState, setAppState] = useState(initialAppState);
+  const [appState, setAppState] = useState(getInitialAppState);
   const [highlightInstructions, setHighlightInstructions] = useState(false);
-
-  const [urlState, setUrlState] = useUrlState({
-    boardSize: BOARD_SIZE,
-    complexity: DEFAULT_COMPLEXITY,
-  });
-
-  const setComplexity = useCallback(
-    (value) => {
-      setUrlState({
-        complexity: value,
-      });
-    },
-    [setUrlState],
+  const [urlState, setUrlState] = useUrlState(() =>
+    createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY),
   );
 
-  const {
-    board,
-    boardSize,
-    clickedTiles,
-    complexity,
-    startingBoard,
-    startingClickedTiles,
-  } = urlState;
+  const { board = [], clickedTiles } = urlState;
+
+  const [complexity, setComplexity] = useState(
+    clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
+  );
+
+  const [startingValues, setStartingValues] = useState({
+    startingBoard: board,
+    startingClickedTiles: clickedTiles,
+  });
+
+  const { startingBoard, startingClickedTiles } = startingValues;
 
   const { clickCount, hasWon, isShowingSolution } = appState;
 
-  useEffect(() => {
-    // On Load Settings
-    if (!board) {
-      newGame();
-    } else if (complexity === 0) {
-      setUrlState({
-        complexity: clickedTiles.filter(Boolean).length,
-        startingBoard: board,
-        startingClickedTiles: clickedTiles,
-      });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const boardSize = useMemo(() => Math.sqrt(board.length), [board.length]);
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -98,7 +82,7 @@ function App() {
   }, [highlightInstructions]);
 
   const resetAppState = () => {
-    setAppState(initialAppState);
+    setAppState(getInitialAppState);
   };
 
   const restartGame = () => {
@@ -114,14 +98,18 @@ function App() {
     const newBoardSize = options.boardSize || boardSize;
     const newComplexity = options.complexity || complexity;
 
-    const game = createNewGame(newBoardSize, newComplexity);
+    const { board, clickedTiles } = createNewGame(newBoardSize, newComplexity);
 
     resetAppState();
 
     setUrlState({
-      ...game,
-      startingBoard: game.board,
-      startingClickedTiles: game.clickedTiles,
+      board,
+      clickedTiles,
+    });
+
+    setStartingValues({
+      startingBoard: board,
+      startingClickedTiles: clickedTiles,
     });
   };
 
@@ -183,7 +171,9 @@ function App() {
       />
       <SpacedContent space={0.5}>
         <Board
-          game={{ board, boardSize, clickedTiles }}
+          board={board}
+          boardSize={boardSize}
+          clickedTiles={clickedTiles}
           handleClick={handleTileClick}
           hasWon={hasWon}
           isShowingSolution={isShowingSolution}

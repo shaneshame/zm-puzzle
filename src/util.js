@@ -2,6 +2,8 @@
 
 const noop = () => {};
 
+const identity = (v) => v;
+
 const range = (min, max, step) => {
   if (max === undefined) {
     max = min;
@@ -28,7 +30,7 @@ const chunk = (arr = [], size = 1) => {
   }, []);
 };
 
-const getRandomInt = (max) => {
+const getRandomInt = (max = 1) => {
   return Math.floor(Math.random() * max);
 };
 
@@ -61,20 +63,16 @@ const boardIndexToCoords = (index, boardSize) => {
   return { x, y };
 };
 
-const boardToMatrix = (board) => {
-  if (board) {
-    const matrixSize = Math.sqrt(board.length);
-    return chunk(board, matrixSize);
-  }
-
-  return null;
+const boardToMatrix = (board = []) => {
+  const matrixSize = Math.sqrt(board.length);
+  return chunk(board, matrixSize);
 };
 
-const getEmptyBoard = (size) => {
+const getEmptyBoard = (size = 0) => {
   return range(size ** 2).map(() => 0);
 };
 
-const isBoardEmpty = (board) => {
+const isBoardEmpty = (board = []) => {
   return board && board.every(isBinaryFalse);
 };
 
@@ -162,9 +160,11 @@ export {
   getIndexRight,
   getRandomInt,
   getUniqueIndices,
+  identity,
   isBinaryTrue,
   isBoardEmpty,
   isFunction,
+  noop,
   range,
   toggleBinary,
 };
