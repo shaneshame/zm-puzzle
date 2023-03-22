@@ -181,6 +181,7 @@ function App() {
           handleClick={handleTileClick}
           hasWon={hasWon}
           isShowingSolution={isShowingSolution}
+          key={JSON.stringify(urlState.board)}
         />
         <ActionBar>
           <ActionButton onClick={restartGame}>Restart</ActionButton>
