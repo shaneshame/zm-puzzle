@@ -42,9 +42,9 @@ const AppContainer = styled.div`
 
 const getInitialAppState = () => {
   return {
-    isShowingSolution: false,
     clickCount: 0,
     hasWon: false,
+    isShowingSolution: false,
   };
 };
 
@@ -55,7 +55,7 @@ function App() {
     createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY),
   );
 
-  const { board = [], clickedTiles } = urlState;
+  const { board = [], clickedTiles = [] } = urlState;
 
   const [complexity, setComplexity] = useState(
     clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,

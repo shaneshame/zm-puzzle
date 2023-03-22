@@ -2,8 +2,8 @@ import {
   boardIndexToCoords,
   boardToMatrix,
   chunk,
-  clickTile,
   clickManyTiles,
+  clickTile,
   getEmptyBoard,
   getIndexAbove,
   getIndexBelow,
@@ -72,7 +72,9 @@ describe('Utility Functions', () => {
       expect(actual).toEqual(expected);
     });
   });
+});
 
+describe('Board Functions', () => {
   test('boardIndexToCoords', () => {
     const boardSize = 5;
 
