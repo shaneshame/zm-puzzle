@@ -2,8 +2,19 @@
 
 const noop = () => {};
 
-const range = (max = 0) => {
-  return [...Array(max)].map((_, index) => index);
+const identity = (v) => v;
+
+const range = (min, max, step) => {
+  if (max === undefined) {
+    max = min;
+    min = 0;
+  }
+
+  step = step || (min < max ? 1 : -1);
+
+  const length = Math.max(Math.ceil((max - min) / (step || 1)), 0);
+
+  return [...Array(length)].map((_, index) => min + index * step);
 };
 
 const chunk = (arr = [], size = 1) => {
@@ -19,7 +30,7 @@ const chunk = (arr = [], size = 1) => {
   }, []);
 };
 
-const getRandomInt = (max) => {
+const getRandomInt = (max = 1) => {
   return Math.floor(Math.random() * max);
 };
 
@@ -29,6 +40,10 @@ const isBinaryTrue = (v) => {
 
 const isBinaryFalse = (v) => {
   return v % 2 === 0;
+};
+
+const isFunction = (v) => {
+  return typeof v === 'function';
 };
 
 const toggleBinary = (v) => {
@@ -48,17 +63,17 @@ const boardIndexToCoords = (index, boardSize) => {
   return { x, y };
 };
 
-const boardToMatrix = (board) => {
+const boardToMatrix = (board = []) => {
   const matrixSize = Math.sqrt(board.length);
   return chunk(board, matrixSize);
 };
 
-const getEmptyBoard = (size) => {
+const getEmptyBoard = (size = 0) => {
   return range(size ** 2).map(() => 0);
 };
 
-const isBoardEmpty = (board) => {
-  return board.every(isBinaryFalse);
+const isBoardEmpty = (board = []) => {
+  return board && board.every(isBinaryFalse);
 };
 
 const getIndexAbove = (index, boardSize) => {
@@ -77,7 +92,7 @@ const getIndexRight = (index, boardSize) => {
   return (index + 1) % boardSize > 0 ? index + 1 : null;
 };
 
-const clickTile = (clickedIndex, board) => {
+const clickTile = (clickedIndex, board = []) => {
   const boardSize = Math.sqrt(board.length);
 
   return board.map((value, index) => {
@@ -104,49 +119,55 @@ const clickManyTiles = (indices, board, callback = noop) => {
   );
 };
 
-const getUniqueIndices = (count, maxIndex) => {
+const getIndexSet = (count, maxIndex) => {
   const uniqueIndices = new Set();
 
   while (uniqueIndices.size < count) {
     uniqueIndices.add(getRandomInt(maxIndex));
   }
 
-  return [...uniqueIndices];
+  return uniqueIndices;
 };
 
-const createNewGame = (boardSize, numClicks) => {
-  let board = getEmptyBoard(boardSize);
-  let clickedTiles = getEmptyBoard(boardSize);
+const getNewClickedTiles = (boardSize, numClicks) => {
+  const indexSet = getIndexSet(numClicks, boardSize ** 2);
 
-  const clickIndices = getUniqueIndices(numClicks, boardSize ** 2);
+  return getEmptyBoard(boardSize).map((_, index) =>
+    indexSet.has(index) ? 1 : 0,
+  );
+};
 
-  board = clickManyTiles(clickIndices, board, (clickedIndex) => {
-    clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
-  });
+const getBoardFromClickedTiles = (clickedTiles = []) => {
+  const boardSize = Math.sqrt(clickedTiles.length);
 
-  return {
-    board,
-    boardSize,
-    clickedTiles,
-  };
+  const clickedIndices = clickedTiles.reduce((acc, value, index) => {
+    return isBinaryTrue(value) ? [...acc, index] : acc;
+  }, []);
+
+  return clickManyTiles(clickedIndices, getEmptyBoard(boardSize));
 };
 
 export {
   boardIndexToCoords,
   boardToMatrix,
   chunk,
-  clickTile,
   clickManyTiles,
+  clickTile,
   coordsToBoardIndex,
-  createNewGame,
+  getBoardFromClickedTiles,
   getEmptyBoard,
   getIndexAbove,
   getIndexBelow,
   getIndexLeft,
   getIndexRight,
+  getIndexSet,
+  getNewClickedTiles,
   getRandomInt,
+  identity,
   isBinaryTrue,
   isBoardEmpty,
+  isFunction,
+  noop,
   range,
   toggleBinary,
 };
