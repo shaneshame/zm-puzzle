@@ -55,22 +55,23 @@ function App() {
     createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY),
   );
 
-  const { board = [], clickedTiles = [] } = urlState;
-
   const [complexity, setComplexity] = useState(
-    clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
+    urlState.clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
   );
 
   const [startingValues, setStartingValues] = useState({
-    startingBoard: board,
-    startingClickedTiles: clickedTiles,
+    startingBoard: urlState.board,
+    startingClickedTiles: urlState.clickedTiles,
   });
 
   const { startingBoard, startingClickedTiles } = startingValues;
 
   const { clickCount, hasWon, isShowingSolution } = appState;
 
-  const boardSize = useMemo(() => Math.sqrt(board.length), [board.length]);
+  const boardSize = useMemo(
+    () => Math.sqrt(urlState.board.length),
+    [urlState.board.length],
+  );
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -129,10 +130,11 @@ function App() {
   };
 
   const handleTileClick = (clickedIndex) => {
-    const newBoard = clickTile(clickedIndex, board);
-    const newClickedTiles = [...clickedTiles];
+    const newBoard = clickTile(clickedIndex, urlState.board);
 
-    newClickedTiles[clickedIndex] = toggleBinary(newClickedTiles[clickedIndex]);
+    const newClickedTiles = urlState.clickedTiles.map((value, index) =>
+      index === clickedIndex ? toggleBinary(value) : value,
+    );
 
     setUrlState({
       board: newBoard,
@@ -164,16 +166,16 @@ function App() {
         </Header>
       </HeaderBar>
       <ClickCounter
-        clickedTiles={clickedTiles}
+        clickedTiles={urlState.clickedTiles}
         complexity={complexity}
         count={clickCount}
         label="Clicks: "
       />
       <SpacedContent space={0.5}>
         <Board
-          board={board}
+          board={urlState.board}
           boardSize={boardSize}
-          clickedTiles={clickedTiles}
+          clickedTiles={urlState.clickedTiles}
           handleClick={handleTileClick}
           hasWon={hasWon}
           isShowingSolution={isShowingSolution}

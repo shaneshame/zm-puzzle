@@ -47,10 +47,10 @@ function useUrlState(initialState = {}, options = {}) {
   }, [location.search, parseOptions]);
 
   const [currentState, setSearch] = useState(() => {
-    const init = isFunction(initialState) ? initialState() : initialState;
+    const initState = isFunction(initialState) ? initialState() : initialState;
 
     return {
-      ...init,
+      ...initState,
       ...stateFromUrl,
     };
   });

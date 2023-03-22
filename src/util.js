@@ -92,7 +92,7 @@ const getIndexRight = (index, boardSize) => {
   return (index + 1) % boardSize > 0 ? index + 1 : null;
 };
 
-const clickTile = (clickedIndex, board) => {
+const clickTile = (clickedIndex, board = []) => {
   const boardSize = Math.sqrt(board.length);
 
   return board.map((value, index) => {
