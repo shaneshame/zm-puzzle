@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import queryString from 'query-string';
 
 import { isFunction } from './util';
@@ -42,47 +42,49 @@ function useUrlState(initialState = {}, options = {}) {
     return getOptions(options);
   }, [options]);
 
-  const stateFromUrl = useMemo(() => {
-    return queryString.parse(location.search, parseOptions);
-  }, [location.search, parseOptions]);
+  const initialStateRef = useRef(
+    isFunction(initialState) ? initialState() : initialState,
+  );
 
-  const [currentState, setSearch] = useState(() => {
-    const initState = isFunction(initialState) ? initialState() : initialState;
+  const hasSetSearchParamsRef = useRef(false);
+
+  const urlState = useMemo(() => {
+    const currentUrlState = queryString.parse(location.search, parseOptions);
+
+    // Only merge in the defaults if we haven't yet called setSearchParams.
+    // Once we call that we want those to take precedence, otherwise you can't
+    // remove a param with setUrlState({}) if it has an initial value
+    const initState = hasSetSearchParamsRef.current
+      ? {}
+      : initialStateRef.current;
 
     return {
       ...initState,
-      ...stateFromUrl,
+      ...currentUrlState,
     };
-  });
-
-  const mergedState = useMemo(() => {
-    return {
-      ...currentState,
-      ...stateFromUrl,
-    };
-  }, [currentState, stateFromUrl]);
+  }, [location.search, parseOptions]);
 
   const setUrlState = useCallback(
     (state) => {
-      setSearch((previousState) => {
-        const passedState = isFunction(state) ? state(mergedState) : state;
+      hasSetSearchParamsRef.current = true;
 
-        const newState = {
-          ...previousState,
-          ...passedState,
-        };
+      const passedState = isFunction(state) ? state(urlState) : state;
 
-        const newString = queryString.stringify(newState, stringifyOptions);
+      const newState = {
+        ...urlState,
+        ...passedState,
+      };
 
-        updateSearchParams(newString);
+      const newString = queryString.stringify(newState, stringifyOptions);
 
-        return newState;
-      });
+      updateSearchParams(newString);
+
+      return newState;
     },
-    [mergedState, stringifyOptions],
+    [stringifyOptions, urlState],
   );
 
-  return [mergedState, setUrlState];
+  return [urlState, setUrlState];
 }
 
 export default useUrlState;
