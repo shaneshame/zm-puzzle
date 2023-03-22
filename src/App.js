@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import useUrlState from './useUrlState';
+import useUrlState from './useUrlStateNew';
 
 import {
   ActionBar,
@@ -54,8 +54,6 @@ function App() {
   const [urlState, setUrlState] = useUrlState(() =>
     createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY),
   );
-
-  console.log('[App] urlState', urlState);
 
   const [complexity, setComplexity] = useState(
     urlState.clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
@@ -181,7 +179,6 @@ function App() {
           handleClick={handleTileClick}
           hasWon={hasWon}
           isShowingSolution={isShowingSolution}
-          key={JSON.stringify(urlState.board)}
         />
         <ActionBar>
           <ActionButton onClick={restartGame}>Restart</ActionButton>
