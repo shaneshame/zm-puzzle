@@ -42,10 +42,6 @@ const isBinaryFalse = (v) => {
   return v % 2 === 0;
 };
 
-const isFunction = (v) => {
-  return typeof v === 'function';
-};
-
 const toggleBinary = (v) => {
   return (v + 1) % 2;
 };
@@ -166,7 +162,6 @@ export {
   identity,
   isBinaryTrue,
   isBoardEmpty,
-  isFunction,
   noop,
   range,
   toggleBinary,
