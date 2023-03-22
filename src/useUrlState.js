@@ -64,6 +64,15 @@ function useUrlState(initialState = {}, options = {}) {
     };
   }, [location.search, parseOptions]);
 
+  if (!hasSetSearchParamsRef.current) {
+    const intialSearchString = queryString.stringify(
+      urlState,
+      stringifyOptions,
+    );
+
+    updateSearchParams(intialSearchString);
+  }
+
   const setUrlState = useCallback(
     (state) => {
       hasSetSearchParamsRef.current = true;

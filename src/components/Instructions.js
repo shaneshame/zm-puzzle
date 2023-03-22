@@ -10,7 +10,7 @@ const FlashHighlight = styled.div`
   opacity: 0;
   position: absolute;
   right: 0;
-  top: -0.5rem;
+  top: 0;
   transition: opacity 0.4s;
 
   &.flash {
