@@ -18,7 +18,7 @@ const Tile = styled.div`
   align-items: center;
   aspect-ratio: 1;
   background-color: ${(props) =>
-    props.isSelected ? colors.redSelected : colors.grayUnselected};
+    props.isSelected ? colors.red : colors.grayUnselected};
   border: 2px solid black;
   cursor: pointer;
   display: flex;
@@ -32,12 +32,18 @@ const SolutionIndicator = styled.span`
   width: 3rem;
 `;
 
-const Board = ({ game, handleClick, hasWon, isShowingSolution }) => {
-  const { board, boardSize, clickedTiles } = game;
-
-  const boardMatrix = boardToMatrix(board, boardSize);
+const Board = ({
+  board,
+  boardSize,
+  clickedTiles,
+  handleClick,
+  hasWon,
+  isShowingSolution,
+}) => {
+  const boardMatrix = boardToMatrix(board);
 
   return (
+    boardSize &&
     boardMatrix && (
       <BoardContainer boardSize={boardSize}>
         {boardMatrix.map((rows, y) =>
