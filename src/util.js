@@ -119,30 +119,32 @@ const clickManyTiles = (indices, board, callback = noop) => {
   );
 };
 
-const getUniqueIndices = (count, maxIndex) => {
+const getIndexSet = (count, maxIndex) => {
   const uniqueIndices = new Set();
 
   while (uniqueIndices.size < count) {
     uniqueIndices.add(getRandomInt(maxIndex));
   }
 
-  return [...uniqueIndices];
+  return uniqueIndices;
 };
 
-const createNewGame = (boardSize, numClicks) => {
-  let board = getEmptyBoard(boardSize);
-  let clickedTiles = getEmptyBoard(boardSize);
+const getNewClickedTiles = (boardSize, numClicks) => {
+  const indexSet = getIndexSet(numClicks, boardSize ** 2);
 
-  const clickIndices = getUniqueIndices(numClicks, boardSize ** 2);
+  return getEmptyBoard(boardSize).map((_, index) =>
+    indexSet.has(index) ? 1 : 0,
+  );
+};
 
-  board = clickManyTiles(clickIndices, board, (clickedIndex) => {
-    clickedTiles[clickedIndex] = toggleBinary(clickedTiles[clickedIndex]);
-  });
+const getBoardFromClickedTiles = (clickedTiles = []) => {
+  const boardSize = Math.sqrt(clickedTiles.length);
 
-  return {
-    board,
-    clickedTiles,
-  };
+  const clickedIndices = clickedTiles.reduce((acc, value, index) => {
+    return isBinaryTrue(value) ? [...acc, index] : acc;
+  }, []);
+
+  return clickManyTiles(clickedIndices, getEmptyBoard(boardSize));
 };
 
 export {
@@ -152,14 +154,15 @@ export {
   clickManyTiles,
   clickTile,
   coordsToBoardIndex,
-  createNewGame,
+  getBoardFromClickedTiles,
   getEmptyBoard,
   getIndexAbove,
   getIndexBelow,
   getIndexLeft,
   getIndexRight,
+  getIndexSet,
+  getNewClickedTiles,
   getRandomInt,
-  getUniqueIndices,
   identity,
   isBinaryTrue,
   isBoardEmpty,

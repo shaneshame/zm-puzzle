@@ -23,8 +23,8 @@ import {
 } from './components';
 
 import {
-  clickTile,
-  createNewGame,
+  getBoardFromClickedTiles,
+  getNewClickedTiles,
   isBoardEmpty,
   range,
   toggleBinary,
@@ -51,27 +51,25 @@ const getInitialAppState = () => {
 function App() {
   const [appState, setAppState] = useState(getInitialAppState);
   const [highlightInstructions, setHighlightInstructions] = useState(false);
-  const [urlState, setUrlState] = useUrlState(() =>
-    createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY),
-  );
+  const [urlState, setUrlState] = useUrlState({
+    clickedTiles: getNewClickedTiles(BOARD_SIZE, DEFAULT_COMPLEXITY),
+  });
 
   const [complexity, setComplexity] = useState(
     urlState.clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
   );
 
-  const [startingValues, setStartingValues] = useState({
-    startingBoard: urlState.board,
-    startingClickedTiles: urlState.clickedTiles,
-  });
+  const board = useMemo(() => {
+    return getBoardFromClickedTiles(urlState.clickedTiles);
+  }, [urlState.clickedTiles]);
 
-  const { startingBoard, startingClickedTiles } = startingValues;
+  const [startingClickedTiles, setStartingClickedTiles] = useState(
+    urlState.clickedTiles,
+  );
+
+  const boardSize = useMemo(() => Math.sqrt(board.length), [board.length]);
 
   const { clickCount, hasWon, isShowingSolution } = appState;
-
-  const boardSize = useMemo(
-    () => Math.sqrt(urlState.board.length),
-    [urlState.board.length],
-  );
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -90,7 +88,6 @@ function App() {
     resetAppState();
 
     setUrlState({
-      board: startingBoard,
       clickedTiles: startingClickedTiles,
     });
   };
@@ -99,19 +96,15 @@ function App() {
     const newBoardSize = options.boardSize || boardSize;
     const newComplexity = options.complexity || complexity;
 
-    const { board, clickedTiles } = createNewGame(newBoardSize, newComplexity);
+    const newClickedTiles = getNewClickedTiles(newBoardSize, newComplexity);
 
     resetAppState();
 
     setUrlState({
-      board,
-      clickedTiles,
+      clickedTiles: newClickedTiles,
     });
 
-    setStartingValues({
-      startingBoard: board,
-      startingClickedTiles: clickedTiles,
-    });
+    setStartingClickedTiles(newClickedTiles);
   };
 
   const handleShowSolution = () => {
@@ -130,21 +123,18 @@ function App() {
   };
 
   const handleTileClick = (clickedIndex) => {
-    const board = clickTile(clickedIndex, urlState.board);
-
-    const clickedTiles = urlState.clickedTiles.map((value, index) =>
+    const newClickedTiles = urlState.clickedTiles.map((value, index) =>
       index === clickedIndex ? toggleBinary(value) : value,
     );
 
     setUrlState({
-      board,
-      clickedTiles,
+      clickedTiles: newClickedTiles,
     });
 
     setAppState((currentAppState) => ({
       ...currentAppState,
       clickCount: clickCount + 1,
-      hasWon: isBoardEmpty(board),
+      hasWon: isBoardEmpty(newClickedTiles),
     }));
   };
 
@@ -173,7 +163,7 @@ function App() {
       />
       <SpacedContent space={0.5}>
         <Board
-          board={urlState.board}
+          board={board}
           boardSize={boardSize}
           clickedTiles={urlState.clickedTiles}
           handleClick={handleTileClick}
