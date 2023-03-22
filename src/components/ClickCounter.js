@@ -16,8 +16,6 @@ const Clicks = styled.span`
 const DELIMITER = '/';
 
 const ClickCounter = ({ clickedTiles = [], complexity, count, label }) => {
-  const numUniqueClicks = clickedTiles.filter(Boolean).length;
-
   return (
     <Container>
       {label}
@@ -28,7 +26,7 @@ const ClickCounter = ({ clickedTiles = [], complexity, count, label }) => {
           {complexity}
         </>
       ) : (
-        numUniqueClicks
+        clickedTiles.filter(Boolean).length
       )}
     </Container>
   );

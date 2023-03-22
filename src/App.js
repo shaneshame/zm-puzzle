@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import useUrlState from './useUrlState';
@@ -59,15 +59,12 @@ function App() {
     urlState.clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
   );
 
-  const board = useMemo(() => {
-    return getBoardFromClickedTiles(urlState.clickedTiles);
-  }, [urlState.clickedTiles]);
+  const board = getBoardFromClickedTiles(urlState.clickedTiles);
+  const boardSize = Math.sqrt(board.length);
 
   const [startingClickedTiles, setStartingClickedTiles] = useState(
     urlState.clickedTiles,
   );
-
-  const boardSize = useMemo(() => Math.sqrt(board.length), [board.length]);
 
   const { clickCount, hasWon, isShowingSolution } = appState;
 
