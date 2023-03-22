@@ -55,6 +55,8 @@ function App() {
     createNewGame(BOARD_SIZE, DEFAULT_COMPLEXITY),
   );
 
+  console.log('[App] urlState', urlState);
+
   const [complexity, setComplexity] = useState(
     urlState.clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
   );
@@ -130,21 +132,21 @@ function App() {
   };
 
   const handleTileClick = (clickedIndex) => {
-    const newBoard = clickTile(clickedIndex, urlState.board);
+    const board = clickTile(clickedIndex, urlState.board);
 
-    const newClickedTiles = urlState.clickedTiles.map((value, index) =>
+    const clickedTiles = urlState.clickedTiles.map((value, index) =>
       index === clickedIndex ? toggleBinary(value) : value,
     );
 
     setUrlState({
-      board: newBoard,
-      clickedTiles: newClickedTiles,
+      board,
+      clickedTiles,
     });
 
     setAppState((currentAppState) => ({
       ...currentAppState,
       clickCount: clickCount + 1,
-      hasWon: isBoardEmpty(newBoard),
+      hasWon: isBoardEmpty(board),
     }));
   };
 
