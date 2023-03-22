@@ -8,6 +8,9 @@ const setUrlQuery = (query) => {
   window.history.replaceState({}, '', updatedUrl);
 };
 
+// Inspired by @remix react-router `useSearchParam` hook
+// https://github.com/remix-run/react-router/blob/590b7a25a454d998c83f4e5d6f00ad5a6217533b/packages/react-router-dom/index.tsx#L785
+
 function useUrlState(initialState = {}, options = {}) {
   const location = window.location;
 
