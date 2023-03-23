@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 
-import { isFunction, queryString, updateUrlQuery } from './util';
+import { identity, isFunction, queryString, updateUrlQuery } from './util';
 
 const setUrlQuery = (query) => {
   const updatedUrl = updateUrlQuery(window.location.toString(), query);
@@ -15,11 +15,15 @@ function useUrlState(initialState = {}, options = {}) {
   const location = window.location;
 
   const serialize = useMemo(() => {
-    return options.serialize || queryString.stringify;
+    return options.serialize ?? queryString.stringify;
   }, [options]);
 
   const deserialize = useMemo(() => {
-    return options.deserialize || queryString.parse;
+    return options.deserialize ?? queryString.parse;
+  }, [options]);
+
+  const processState = useMemo(() => {
+    return options.processState ?? identity;
   }, [options]);
 
   const initialStateRef = useRef(
@@ -38,11 +42,11 @@ function useUrlState(initialState = {}, options = {}) {
       ? {}
       : initialStateRef.current;
 
-    return {
+    return processState({
       ...initState,
       ...currentUrlState,
-    };
-  }, [deserialize, location.search]);
+    });
+  }, [deserialize, location.search, processState]);
 
   if (!hasSetSearchParamsRef.current) {
     const initialQuery = serialize(urlState);

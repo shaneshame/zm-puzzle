@@ -1,3 +1,7 @@
+const stubTrue = () => true;
+
+const identity = (value) => value;
+
 const isFunction = (value) => typeof value === 'function';
 
 const isNull = (value) => value === null;
@@ -12,6 +16,20 @@ const isNil = (value) => {
 
 const isPresent = (value) => {
   return !isNil(value);
+};
+
+const isNumber = (v) => {
+  return !isNaN(Number(v));
+};
+
+const cond = (conditionPairs = []) => {
+  return (value) => {
+    for (const [predicate, execution] of conditionPairs) {
+      if (predicate(value)) {
+        return execution(value);
+      }
+    }
+  };
 };
 
 const isStringArray = (str = '') => str.includes(',');
@@ -54,6 +72,12 @@ const stringify = (obj = {}) => {
   return decodedSearchParamsString;
 };
 
+const parseValue = cond([
+  [isStringArray, parseArrayString],
+  [isNumber, Number],
+  [stubTrue, identity],
+]);
+
 const parse = (queryString) => {
   const searchParams = new URLSearchParams(queryString);
 
@@ -61,7 +85,7 @@ const parse = (queryString) => {
     return isPresent(value)
       ? {
           ...acc,
-          [key]: isStringArray(value) ? parseArrayString(value) : value,
+          [key]: parseValue(value),
         }
       : acc;
   }, {});
@@ -69,4 +93,4 @@ const parse = (queryString) => {
 
 const queryString = { parse, stringify };
 
-export { isFunction, queryString, updateUrlQuery };
+export { identity, isFunction, queryString, updateUrlQuery };

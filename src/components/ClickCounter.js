@@ -15,15 +15,15 @@ const Clicks = styled.span`
 
 const DELIMITER = '/';
 
-const ClickCounter = ({ clickedTiles = [], complexity, count, label }) => {
+const ClickCounter = ({ clickedTiles = [], count, label, minClicks }) => {
   return (
     <Container>
       {label}
-      {complexity > 0 ? (
+      {minClicks > 0 ? (
         <>
-          <Clicks hasExceeded={count > complexity}>{count}</Clicks>
+          <Clicks hasExceeded={count > minClicks}>{count}</Clicks>
           {DELIMITER}
-          {complexity}
+          {minClicks}
         </>
       ) : (
         clickedTiles.filter(Boolean).length

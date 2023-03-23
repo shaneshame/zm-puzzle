@@ -46,6 +46,10 @@ const toggleBinary = (v) => {
   return (v + 1) % 2;
 };
 
+const countTrue = (arr = []) => {
+  return arr.filter(Boolean).length;
+};
+
 // Board Util
 
 const coordsToBoardIndex = (x, y, boardSize) => {
@@ -150,6 +154,7 @@ export {
   clickManyTiles,
   clickTile,
   coordsToBoardIndex,
+  countTrue,
   getBoardFromClickedTiles,
   getEmptyBoard,
   getIndexAbove,
