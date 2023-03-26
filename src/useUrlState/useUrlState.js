@@ -22,10 +22,6 @@ function useUrlState(initialState = {}, options = {}) {
     return options.deserialize ?? queryString.parse;
   }, [options]);
 
-  const processState = useMemo(() => {
-    return options.processState ?? identity;
-  }, [options]);
-
   const initialStateRef = useRef(
     isFunction(initialState) ? initialState() : initialState,
   );
@@ -42,11 +38,18 @@ function useUrlState(initialState = {}, options = {}) {
       ? {}
       : initialStateRef.current;
 
-    return processState({
+    const onLoad =
+      !hasSetSearchParamsRef.current && options.onLoad
+        ? options.onLoad
+        : identity;
+
+    const postprocess = options.postprocess ?? onLoad;
+
+    return postprocess({
       ...initState,
       ...currentUrlState,
     });
-  }, [deserialize, location.search, processState]);
+  }, [deserialize, location.search, options.onLoad, options.postprocess]);
 
   if (!hasSetSearchParamsRef.current) {
     const initialQuery = serialize(urlState);

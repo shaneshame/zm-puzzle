@@ -25,6 +25,7 @@ import {
 import {
   countTrue,
   getBoardFromClickedTiles,
+  getBoardSize,
   getNewClickedTiles,
   isBoardEmpty,
   range,
@@ -41,22 +42,20 @@ const AppContainer = styled.div`
   width: 500px;
 `;
 
-let hasInit = false;
+const onLoad = (curState = {}) => {
+  const { clickedTiles = [], startingClickedTiles = [] } = curState;
 
-const processUrlState = (curState) => {
-  if (!hasInit && countTrue(curState.clickedTiles) === 0) {
-    hasInit = true;
-
+  if (isBoardEmpty(startingClickedTiles)) {
     return {
       ...curState,
-      clickedTiles: getNewClickedTiles(
-        Math.sqrt(curState.clickedTiles.length),
-        curState.complexity,
-      ),
+      startingClickedTiles: clickedTiles,
     };
   }
 
-  return curState;
+  return {
+    ...curState,
+    clickedTiles: startingClickedTiles,
+  };
 };
 
 const getInitialAppState = () => {
@@ -71,16 +70,24 @@ function App() {
   const [appState, setAppState] = useState(getInitialAppState);
   const [highlightInstructions, setHighlightInstructions] = useState(false);
   const [urlState, setUrlState] = useUrlState(
-    {
-      clickedTiles: getNewClickedTiles(BOARD_SIZE, DEFAULT_COMPLEXITY),
-      complexity: DEFAULT_COMPLEXITY,
+    () => {
+      const newClickedTiles = getNewClickedTiles(
+        BOARD_SIZE,
+        DEFAULT_COMPLEXITY,
+      );
+
+      return {
+        clickedTiles: newClickedTiles,
+        startingClickedTiles: newClickedTiles,
+        complexity: DEFAULT_COMPLEXITY,
+      };
     },
     {
-      processState: processUrlState,
+      onLoad,
     },
   );
 
-  const { clickedTiles } = urlState;
+  const { clickedTiles, startingClickedTiles } = urlState;
 
   const [selectedComplexity, setSelectedComplexity] = useState(() => {
     return countTrue(clickedTiles) > 0
@@ -94,10 +101,7 @@ function App() {
 
   const board = getBoardFromClickedTiles(clickedTiles);
 
-  const boardSize = Math.sqrt(board.length);
-
-  const [startingClickedTiles, setStartingClickedTiles] =
-    useState(clickedTiles);
+  const boardSize = getBoardSize(board);
 
   const { clickCount, hasWon, isShowingSolution } = appState;
 
@@ -124,7 +128,7 @@ function App() {
   };
 
   const newGame = (options = {}) => {
-    // Need nullish coalescing `??` because values could be `0`
+    // Need nullish coalescing `??` operator because values could be `0`
     const newBoardSize = options.boardSize ?? boardSize;
     const newComplexity = options.complexity ?? selectedComplexity;
 
@@ -135,9 +139,8 @@ function App() {
     setUrlState({
       clickedTiles: newClickedTiles,
       complexity: newComplexity,
+      startingClickedTiles: newClickedTiles,
     });
-
-    setStartingClickedTiles(newClickedTiles);
   };
 
   const handleShowSolution = () => {
@@ -160,6 +163,8 @@ function App() {
       index === clickedIndex ? toggleBinary(value) : value,
     );
 
+    const newBoard = getBoardFromClickedTiles(newClickedTiles);
+
     const isCustom = selectedComplexity === 0;
 
     setUrlState({
@@ -170,7 +175,7 @@ function App() {
     setAppState((currentAppState) => ({
       ...currentAppState,
       clickCount: clickCount + 1,
-      hasWon: isBoardEmpty(newClickedTiles),
+      hasWon: isBoardEmpty(newBoard),
     }));
   };
 
