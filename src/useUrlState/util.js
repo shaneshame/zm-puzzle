@@ -22,13 +22,25 @@ const isNumber = (v) => {
   return !isNaN(Number(v));
 };
 
+const flow = (funcs = []) => {
+  return (...args) => {
+    return funcs.reduce(
+      (accumulator, nextFunc) =>
+        isUndefined(accumulator) ? nextFunc(...args) : nextFunc(accumulator),
+      undefined,
+    );
+  };
+};
+
 const cond = (conditionPairs = []) => {
-  return (value) => {
+  return (...args) => {
     for (const [predicate, execution] of conditionPairs) {
-      if (predicate(value)) {
-        return execution(value);
+      if (predicate(...args)) {
+        return execution(...args);
       }
     }
+
+    return;
   };
 };
 
@@ -93,4 +105,4 @@ const parse = (queryString) => {
 
 const queryString = { parse, stringify };
 
-export { identity, isFunction, queryString, updateUrlQuery };
+export { cond, flow, identity, isFunction, queryString, updateUrlQuery };

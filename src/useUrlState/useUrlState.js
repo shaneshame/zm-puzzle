@@ -1,11 +1,15 @@
 import { useCallback, useMemo, useRef } from 'react';
 
-import { identity, isFunction, queryString, updateUrlQuery } from './util';
+import { isFunction, queryString, updateUrlQuery } from './util';
 
-const setUrlQuery = (query) => {
+const setUrlQuery = (query, historyMethod) => {
   const updatedUrl = updateUrlQuery(window.location.toString(), query);
 
-  window.history.replaceState({}, '', updatedUrl);
+  if (historyMethod === 'push') {
+    window.history.pushState({}, '', updatedUrl);
+  } else {
+    window.history.replaceState({}, '', updatedUrl);
+  }
 };
 
 // Inspired by @remix react-router `useSearchParam` hook
@@ -38,28 +42,17 @@ function useUrlState(initialState = {}, options = {}) {
       ? {}
       : initialStateRef.current;
 
-    const onLoad =
-      !hasSetSearchParamsRef.current && options.onLoad
-        ? options.onLoad
-        : identity;
-
-    const postprocess = options.postprocess ?? onLoad;
-
-    return postprocess({
+    return {
       ...initState,
       ...currentUrlState,
-    });
-  }, [deserialize, location.search, options.onLoad, options.postprocess]);
-
-  if (!hasSetSearchParamsRef.current) {
-    const initialQuery = serialize(urlState);
-
-    setUrlQuery(initialQuery);
-  }
+    };
+  }, [deserialize, location.search]);
 
   const setUrlState = useCallback(
-    (state) => {
+    (state, method) => {
       hasSetSearchParamsRef.current = true;
+
+      const historyMethod = options.historyMethod ?? method;
 
       const passedState = isFunction(state) ? state(urlState) : state;
 
@@ -70,11 +63,11 @@ function useUrlState(initialState = {}, options = {}) {
 
       const query = serialize(newState);
 
-      setUrlQuery(query);
+      setUrlQuery(query, historyMethod);
 
       return newState;
     },
-    [serialize, urlState],
+    [options, serialize, urlState],
   );
 
   return [urlState, setUrlState];

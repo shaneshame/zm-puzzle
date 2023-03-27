@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import useUrlState from './useUrlState';
+import useAppState from './useAppState';
 
 import {
   ActionBar,
@@ -42,50 +42,25 @@ const AppContainer = styled.div`
   width: 500px;
 `;
 
-const onLoad = (curState = {}) => {
-  const { clickedTiles = [], startingClickedTiles = [] } = curState;
-
-  if (isBoardEmpty(startingClickedTiles)) {
-    return {
-      ...curState,
-      startingClickedTiles: clickedTiles,
-    };
-  }
-
-  return {
-    ...curState,
-    clickedTiles: startingClickedTiles,
-  };
-};
-
-const getInitialAppState = () => {
-  return {
-    clickCount: 0,
-    hasWon: false,
-    isShowingSolution: false,
-  };
-};
+const getInitialTrackingState = () => ({
+  clickCount: 0,
+  hasWon: false,
+  isShowingSolution: false,
+});
 
 function App() {
-  const [appState, setAppState] = useState(getInitialAppState);
+  const [trackingState, setTrackingState] = useState(getInitialTrackingState);
   const [highlightInstructions, setHighlightInstructions] = useState(false);
-  const [urlState, setUrlState] = useUrlState(
-    () => {
-      const newClickedTiles = getNewClickedTiles(
-        BOARD_SIZE,
-        DEFAULT_COMPLEXITY,
-      );
 
-      return {
-        clickedTiles: newClickedTiles,
-        startingClickedTiles: newClickedTiles,
-        complexity: DEFAULT_COMPLEXITY,
-      };
-    },
-    {
-      onLoad,
-    },
-  );
+  const [urlState, setUrlState] = useAppState(() => {
+    const newClickedTiles = getNewClickedTiles(BOARD_SIZE, DEFAULT_COMPLEXITY);
+
+    return {
+      clickedTiles: newClickedTiles,
+      complexity: DEFAULT_COMPLEXITY,
+      startingClickedTiles: newClickedTiles,
+    };
+  });
 
   const { clickedTiles, startingClickedTiles } = urlState;
 
@@ -103,7 +78,7 @@ function App() {
 
   const boardSize = getBoardSize(board);
 
-  const { clickCount, hasWon, isShowingSolution } = appState;
+  const { clickCount, hasWon, isShowingSolution } = trackingState;
 
   useEffect(() => {
     if (highlightInstructions) {
@@ -115,7 +90,7 @@ function App() {
   }, [highlightInstructions]);
 
   const resetAppState = () => {
-    setAppState(getInitialAppState);
+    setTrackingState(getInitialTrackingState);
   };
 
   const restartGame = () => {
@@ -144,8 +119,8 @@ function App() {
   };
 
   const handleShowSolution = () => {
-    setAppState((currentAppState) => ({
-      ...currentAppState,
+    setTrackingState((curTrackingState) => ({
+      ...curTrackingState,
       isShowingSolution: !isShowingSolution,
     }));
   };
@@ -172,8 +147,8 @@ function App() {
       complexity: isCustom ? countTrue(newClickedTiles) : urlState.complexity,
     });
 
-    setAppState((currentAppState) => ({
-      ...currentAppState,
+    setTrackingState((curTrackingState) => ({
+      ...curTrackingState,
       clickCount: clickCount + 1,
       hasWon: isBoardEmpty(newBoard),
     }));
