@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import useUrlState from './useUrlState';
+import useAppState from './useAppState';
 
 import {
   ActionBar,
@@ -23,7 +23,9 @@ import {
 } from './components';
 
 import {
+  countTrue,
   getBoardFromClickedTiles,
+  getBoardSize,
   getNewClickedTiles,
   isBoardEmpty,
   range,
@@ -40,45 +42,55 @@ const AppContainer = styled.div`
   width: 500px;
 `;
 
-const getInitialAppState = () => {
-  return {
-    clickCount: 0,
-    hasWon: false,
-    isShowingSolution: false,
-  };
-};
+const getInitialTrackingState = () => ({
+  clickCount: 0,
+  hasWon: false,
+  isShowingSolution: false,
+});
 
 function App() {
-  const [appState, setAppState] = useState(getInitialAppState);
+  const [trackingState, setTrackingState] = useState(getInitialTrackingState);
   const [highlightInstructions, setHighlightInstructions] = useState(false);
-  const [urlState, setUrlState] = useUrlState({
-    clickedTiles: getNewClickedTiles(BOARD_SIZE, DEFAULT_COMPLEXITY),
+
+  const [urlState, setUrlState] = useAppState(() => {
+    const newClickedTiles = getNewClickedTiles(BOARD_SIZE, DEFAULT_COMPLEXITY);
+
+    return {
+      clickedTiles: newClickedTiles,
+      complexity: DEFAULT_COMPLEXITY,
+      startingClickedTiles: newClickedTiles,
+    };
   });
 
-  const [complexity, setComplexity] = useState(
-    urlState.clickedTiles.filter(Boolean).length || DEFAULT_COMPLEXITY,
-  );
+  const { clickedTiles, startingClickedTiles } = urlState;
 
-  const board = getBoardFromClickedTiles(urlState.clickedTiles);
-  const boardSize = Math.sqrt(board.length);
+  const [selectedComplexity, setSelectedComplexity] = useState(() => {
+    return countTrue(clickedTiles) > 0
+      ? countTrue(clickedTiles)
+      : urlState.complexity;
+  });
 
-  const [startingClickedTiles, setStartingClickedTiles] = useState(
-    urlState.clickedTiles,
-  );
+  if (typeof selectedComplexity === 'string') {
+    console.error('typeof selectedComplexity is `string`');
+  }
 
-  const { clickCount, hasWon, isShowingSolution } = appState;
+  const board = getBoardFromClickedTiles(clickedTiles);
+
+  const boardSize = getBoardSize(board);
+
+  const { clickCount, hasWon, isShowingSolution } = trackingState;
 
   useEffect(() => {
     if (highlightInstructions) {
-      const timer = setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setHighlightInstructions(false);
       }, 350);
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timeoutId);
     }
   }, [highlightInstructions]);
 
   const resetAppState = () => {
-    setAppState(getInitialAppState);
+    setTrackingState(getInitialTrackingState);
   };
 
   const restartGame = () => {
@@ -86,12 +98,14 @@ function App() {
 
     setUrlState({
       clickedTiles: startingClickedTiles,
+      complexity: selectedComplexity,
     });
   };
 
   const newGame = (options = {}) => {
-    const newBoardSize = options.boardSize || boardSize;
-    const newComplexity = options.complexity || complexity;
+    // Need nullish coalescing `??` operator because values could be `0`
+    const newBoardSize = options.boardSize ?? boardSize;
+    const newComplexity = options.complexity ?? selectedComplexity;
 
     const newClickedTiles = getNewClickedTiles(newBoardSize, newComplexity);
 
@@ -99,39 +113,44 @@ function App() {
 
     setUrlState({
       clickedTiles: newClickedTiles,
+      complexity: newComplexity,
+      startingClickedTiles: newClickedTiles,
     });
-
-    setStartingClickedTiles(newClickedTiles);
   };
 
   const handleShowSolution = () => {
-    setAppState((currentAppState) => ({
-      ...currentAppState,
+    setTrackingState((curTrackingState) => ({
+      ...curTrackingState,
       isShowingSolution: !isShowingSolution,
     }));
   };
 
   const handleSelectComplexity = (event) => {
-    const newComplexity = event.target.value;
+    const newComplexity = Number(event.target.value);
 
-    setComplexity(newComplexity);
+    setSelectedComplexity(newComplexity);
 
     newGame({ complexity: newComplexity });
   };
 
   const handleTileClick = (clickedIndex) => {
-    const newClickedTiles = urlState.clickedTiles.map((value, index) =>
+    const newClickedTiles = clickedTiles.map((value, index) =>
       index === clickedIndex ? toggleBinary(value) : value,
     );
 
+    const newBoard = getBoardFromClickedTiles(newClickedTiles);
+
+    const isCustom = selectedComplexity === 0;
+
     setUrlState({
       clickedTiles: newClickedTiles,
+      complexity: isCustom ? countTrue(newClickedTiles) : urlState.complexity,
     });
 
-    setAppState((currentAppState) => ({
-      ...currentAppState,
+    setTrackingState((curTrackingState) => ({
+      ...curTrackingState,
       clickCount: clickCount + 1,
-      hasWon: isBoardEmpty(newClickedTiles),
+      hasWon: isBoardEmpty(newBoard),
     }));
   };
 
@@ -153,16 +172,16 @@ function App() {
         </Header>
       </HeaderBar>
       <ClickCounter
-        clickedTiles={urlState.clickedTiles}
-        complexity={complexity}
+        clickedTiles={clickedTiles}
         count={clickCount}
         label="Clicks: "
+        minClicks={selectedComplexity}
       />
       <SpacedContent space={0.5}>
         <Board
           board={board}
           boardSize={boardSize}
-          clickedTiles={urlState.clickedTiles}
+          clickedTiles={clickedTiles}
           handleClick={handleTileClick}
           hasWon={hasWon}
           isShowingSolution={isShowingSolution}
@@ -176,17 +195,20 @@ function App() {
           >
             Solve
           </ActionButton>
-          <ActionButton onClick={() => newGame({ complexity })}>
+          <ActionButton
+            onClick={() => newGame({ complexity: selectedComplexity })}
+          >
             New
           </ActionButton>
         </ActionBar>
         <Select
           id="complexity-select"
           onChange={handleSelectComplexity}
-          value={complexity}
+          value={selectedComplexity}
         >
           <SelectOption key="custom" value={0}>
-            Custom{complexity > MAX_COMPLEXITY && ` (${complexity})`}
+            Custom
+            {selectedComplexity > MAX_COMPLEXITY && ` (${selectedComplexity})`}
           </SelectOption>
           {range(1, MAX_COMPLEXITY + 1).map((n) => {
             return (
