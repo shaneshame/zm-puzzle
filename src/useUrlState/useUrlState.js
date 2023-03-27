@@ -2,6 +2,10 @@ import { useCallback, useMemo, useRef } from 'react';
 
 import { isFunction, queryString, updateUrlQuery } from './util';
 
+const getSearchString = () => {
+  return window.location.search.toString();
+};
+
 const setUrlQuery = (query, historyMethod) => {
   const updatedUrl = updateUrlQuery(window.location.toString(), query);
 
@@ -13,10 +17,10 @@ const setUrlQuery = (query, historyMethod) => {
 };
 
 // Inspired by @remix react-router `useSearchParam` hook
-// https://github.com/remix-run/react-router/blob/590b7a25a454d998c83f4e5d6f00ad5a6217533b/packages/react-router-dom/index.tsx#L785
+// https://github.com/remix-run/react-router/blob/main/packages/react-router-dom/index.tsx#L851
 
 function useUrlState(initialState = {}, options = {}) {
-  const location = window.location;
+  const currentSearchString = getSearchString();
 
   const serialize = useMemo(() => {
     return options.serialize ?? queryString.stringify;
@@ -30,44 +34,31 @@ function useUrlState(initialState = {}, options = {}) {
     isFunction(initialState) ? initialState() : initialState,
   );
 
-  const hasSetSearchParamsRef = useRef(false);
-
   const urlState = useMemo(() => {
-    const currentUrlState = deserialize(location.search);
-
-    // Only merge in the defaults if we haven't yet called setSearchParams.
-    // Once we call that we want those to take precedence, otherwise you can't
-    // remove a param with setUrlState({}) if it has an initial value
-    const initState = hasSetSearchParamsRef.current
-      ? {}
-      : initialStateRef.current;
+    const currentUrlState = deserialize(currentSearchString);
 
     return {
-      ...initState,
+      ...initialStateRef.current,
       ...currentUrlState,
     };
-  }, [deserialize, location.search]);
+  }, [currentSearchString, deserialize]);
 
   const setUrlState = useCallback(
     (state, method) => {
-      hasSetSearchParamsRef.current = true;
+      const currentUrlState = deserialize(getSearchString());
 
-      const historyMethod = options.historyMethod ?? method;
-
-      const passedState = isFunction(state) ? state(urlState) : state;
+      const nextState = isFunction(state) ? state(currentUrlState) : state;
 
       const newState = {
-        ...urlState,
-        ...passedState,
+        ...currentUrlState,
+        ...nextState,
       };
 
       const query = serialize(newState);
 
-      setUrlQuery(query, historyMethod);
-
-      return newState;
+      setUrlQuery(query, options.historyMethod ?? method);
     },
-    [options, serialize, urlState],
+    [deserialize, options.historyMethod, serialize],
   );
 
   return [urlState, setUrlState];
