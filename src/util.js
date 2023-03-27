@@ -34,16 +34,24 @@ const getRandomInt = (max = 1) => {
   return Math.floor(Math.random() * max);
 };
 
+const binary = (value) => {
+  return value ? 1 : 0;
+};
+
 const isBinaryTrue = (v) => {
-  return v % 2 > 0;
+  return binary(v) % 2 > 0;
 };
 
 const isBinaryFalse = (v) => {
-  return v % 2 === 0;
+  return binary(v) % 2 === 0;
 };
 
 const toggleBinary = (v) => {
-  return (v + 1) % 2;
+  return (binary(v) + 1) % 2;
+};
+
+const countTrue = (arr = []) => {
+  return arr.filter(Boolean).length;
 };
 
 // Board Util
@@ -59,8 +67,12 @@ const boardIndexToCoords = (index, boardSize) => {
   return { x, y };
 };
 
+const getBoardSize = (board) => {
+  return board ? Math.sqrt(board.length) : 0;
+};
+
 const boardToMatrix = (board = []) => {
-  const matrixSize = Math.sqrt(board.length);
+  const matrixSize = getBoardSize(board);
   return chunk(board, matrixSize);
 };
 
@@ -69,7 +81,7 @@ const getEmptyBoard = (size = 0) => {
 };
 
 const isBoardEmpty = (board = []) => {
-  return board && board.every(isBinaryFalse);
+  return board.every(isBinaryFalse);
 };
 
 const getIndexAbove = (index, boardSize) => {
@@ -129,11 +141,16 @@ const getNewClickedTiles = (boardSize, numClicks) => {
   const indexSet = getIndexSet(numClicks, boardSize ** 2);
 
   return getEmptyBoard(boardSize).map((_, index) =>
-    indexSet.has(index) ? 1 : 0,
+    binary(indexSet.has(index)),
   );
 };
 
 const getBoardFromClickedTiles = (clickedTiles = []) => {
+  if (clickedTiles.length === 0) {
+    console.log('[getBoardFromClickedTiles] null return');
+    return [];
+  }
+
   const boardSize = Math.sqrt(clickedTiles.length);
 
   const clickedIndices = clickedTiles.reduce((acc, value, index) => {
@@ -150,7 +167,9 @@ export {
   clickManyTiles,
   clickTile,
   coordsToBoardIndex,
+  countTrue,
   getBoardFromClickedTiles,
+  getBoardSize,
   getEmptyBoard,
   getIndexAbove,
   getIndexBelow,
@@ -161,6 +180,7 @@ export {
   getRandomInt,
   identity,
   isBinaryTrue,
+  isBinaryFalse,
   isBoardEmpty,
   noop,
   range,
