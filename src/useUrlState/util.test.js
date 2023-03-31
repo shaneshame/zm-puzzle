@@ -1,4 +1,20 @@
-import { cond, flow, stubTrue, updateUrlQuery } from './util';
+import {
+  cond,
+  isEmpty,
+  flow,
+  stubTrue,
+  queryString,
+  updateUrlQuery,
+} from './util';
+
+describe('isEmpty', () => {
+  test('should handle strings', () => {
+    const actual = isEmpty('');
+    const expected = true;
+
+    expect(actual).toBe(expected);
+  });
+});
 
 describe('updateUrlQuery', () => {
   test('should not change with no query', () => {
@@ -84,5 +100,36 @@ describe('flow', () => {
     const expected = 9;
 
     expect(actual).toEqual(expected);
+  });
+});
+
+describe('queryString', () => {
+  describe('parse', () => {
+    test('should parse null', () => {
+      const query = 'foo=bar&food=null';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: null };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should parse undefined', () => {
+      const query = 'foo=bar&food=undefined';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: undefined };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should parse empty values as null', () => {
+      const query = 'foo=bar&food=';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: null };
+
+      expect(actual).toEqual(expected);
+    });
   });
 });

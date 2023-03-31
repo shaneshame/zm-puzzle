@@ -18,8 +18,23 @@ const isPresent = (value) => {
   return !isNil(value);
 };
 
-const isNumber = (v) => {
-  return !isNaN(Number(v));
+const isEmpty = (value) => {
+  return !isPresent(value) || Object.entries(value).length === 0;
+};
+
+const isNumber = (value = '') => {
+  return !isEmpty(value) && !isNaN(Number(value));
+};
+
+const filterObject = (obj = {}, predicate = identity) => {
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    return predicate(value, key)
+      ? {
+          ...acc,
+          [key]: value,
+        }
+      : acc;
+  }, {});
 };
 
 const flow = (funcs = []) => {
@@ -45,6 +60,8 @@ const cond = (conditionPairs = []) => {
 };
 
 const isStringArray = (str = '') => str.includes(',');
+const isStringNull = (str = '') => str === 'null';
+const isStringUndefined = (str = '') => str === 'undefined';
 
 const ensureLeadingQuestion = (str = '') => {
   return str[0] === '?' ? str : `?${str}`;
@@ -54,7 +71,7 @@ const wrapArrayBrackets = (str = '') => {
   return `[${str}]`;
 };
 
-const parseArrayString = (arrayString = '') => {
+const parseStringArray = (arrayString = '') => {
   return JSON.parse(wrapArrayBrackets(arrayString));
 };
 
@@ -70,13 +87,12 @@ const updateUrlQuery = (urlString = '', query) => {
 // `stringify` and `parse` inspired by Rob Marshall
 // https://robertmarshall.dev/blog/migrating-from-query-string-to-urlsearchparams/
 
+const alphaByKey = ([keyA], [keyB]) => keyA.localeCompare(keyB);
+
 const stringify = (obj = {}) => {
-  const entries = Object.entries(obj).filter(([_, value]) => {
-    return isPresent(value);
-  });
-
-  const searchParams = new URLSearchParams(entries);
-
+  const entries = Object.entries(obj).filter(([_, value]) => isPresent(value));
+  const sortedEntries = entries.sort(alphaByKey);
+  const searchParams = new URLSearchParams(sortedEntries);
   const searchParamsString = searchParams.toString();
 
   const decodedSearchParamsString = searchParamsString.replace(/%2C/g, ',');
@@ -85,8 +101,11 @@ const stringify = (obj = {}) => {
 };
 
 const parseValue = cond([
-  [isStringArray, parseArrayString],
+  [isStringArray, parseStringArray],
   [isNumber, Number],
+  [isStringNull, () => null],
+  [isStringUndefined, () => undefined],
+  [isEmpty, () => null],
   [stubTrue, identity],
 ]);
 
@@ -105,4 +124,14 @@ const parse = (queryString) => {
 
 const queryString = { parse, stringify };
 
-export { cond, flow, identity, isFunction, queryString, updateUrlQuery };
+export {
+  cond,
+  flow,
+  filterObject,
+  identity,
+  isEmpty,
+  isFunction,
+  isPresent,
+  queryString,
+  updateUrlQuery,
+};
