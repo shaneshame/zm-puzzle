@@ -1,4 +1,10 @@
+const negate = (predicate) => {
+  return (...args) => !predicate(...args);
+};
+
 const stubTrue = () => true;
+
+const stubFalse = () => false;
 
 const identity = (value) => value;
 
@@ -10,20 +16,32 @@ const isUndefined = (value) => {
   return typeof value === 'undefined';
 };
 
+const isString = (value) => {
+  return typeof value === 'string';
+};
+
 const isNil = (value) => {
   return isUndefined(value) || isNull(value);
 };
 
-const isPresent = (value) => {
-  return !isNil(value);
-};
+const isPresent = negate(isNil);
 
 const isEmpty = (value) => {
-  return !isPresent(value) || Object.entries(value).length === 0;
+  return isNil(value) || Object.entries(value).length === 0;
 };
 
-const isNumber = (value = '') => {
-  return !isEmpty(value) && !isNaN(Number(value));
+const isNumber = (value) => {
+  return isString(value)
+    ? !isEmpty(value) && !isNaN(Number(value))
+    : typeof value === 'number';
+};
+
+const overEvery = (predicates = []) => {
+  return (...args) => predicates.every((predicate) => predicate(...args));
+};
+
+const overSome = (predicates = []) => {
+  return (...args) => predicates.some((predicate) => predicate(...args));
 };
 
 const filterObject = (obj = {}, predicate = identity) => {
@@ -62,6 +80,23 @@ const cond = (conditionPairs = []) => {
 const isStringArray = (str = '') => str.includes(',');
 const isStringNull = (str = '') => str === 'null';
 const isStringUndefined = (str = '') => str === 'undefined';
+const isStringTrue = (str = '') => str === 'true';
+const isStringFalse = (str = '') => str === 'false';
+
+const isStringPrimitive = overSome([
+  isStringNull,
+  isStringUndefined,
+  isStringTrue,
+  isStringFalse,
+]);
+
+const parseStringPrimitive = cond([
+  [isStringNull, () => null],
+  [isStringUndefined, () => undefined],
+  [isStringTrue, stubTrue],
+  [isStringFalse, stubFalse],
+  [stubTrue, identity],
+]);
 
 const ensureLeadingQuestion = (str = '') => {
   return str[0] === '?' ? str : `?${str}`;
@@ -89,9 +124,14 @@ const updateUrlQuery = (urlString = '', query) => {
 
 const alphaByKey = ([keyA], [keyB]) => keyA.localeCompare(keyB);
 
+const shouldInclude = overEvery([isPresent, negate(isEmpty)]);
+
 const stringify = (obj = {}) => {
-  const entries = Object.entries(obj).filter(([_, value]) => isPresent(value));
-  const sortedEntries = entries.sort(alphaByKey);
+  const filteredEntries = Object.entries(obj).filter(([_, value]) =>
+    shouldInclude(value),
+  );
+
+  const sortedEntries = filteredEntries.sort(alphaByKey);
   const searchParams = new URLSearchParams(sortedEntries);
   const searchParamsString = searchParams.toString();
 
@@ -103,9 +143,7 @@ const stringify = (obj = {}) => {
 const parseValue = cond([
   [isStringArray, parseStringArray],
   [isNumber, Number],
-  [isStringNull, () => null],
-  [isStringUndefined, () => undefined],
-  [isEmpty, () => null],
+  [isStringPrimitive, parseStringPrimitive],
   [stubTrue, identity],
 ]);
 
@@ -113,7 +151,7 @@ const parse = (queryString) => {
   const searchParams = new URLSearchParams(queryString);
 
   return [...searchParams.entries()].reduce((acc, [key, value]) => {
-    return isPresent(value)
+    return shouldInclude(value)
       ? {
           ...acc,
           [key]: parseValue(value),
@@ -126,12 +164,14 @@ const queryString = { parse, stringify };
 
 export {
   cond,
-  flow,
   filterObject,
+  flow,
   identity,
   isEmpty,
   isFunction,
+  isNumber,
   isPresent,
+  overEvery,
   queryString,
   updateUrlQuery,
 };
