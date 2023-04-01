@@ -284,8 +284,18 @@ describe('overEvery', () => {
 
     const func = overEvery([isEven, isGreaterThan10]);
 
-    const actual = func(12);
-    const expected = true;
+    let actual = func(12);
+    let expected = true;
+
+    expect(actual).toBe(expected);
+
+    actual = func(10);
+    expected = false;
+
+    expect(actual).toBe(expected);
+
+    actual = func(13);
+    expected = false;
 
     expect(actual).toBe(expected);
   });
