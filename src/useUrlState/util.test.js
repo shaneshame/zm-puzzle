@@ -1,4 +1,119 @@
-import { cond, flow, stubTrue, updateUrlQuery } from './util';
+import {
+  cond,
+  flow,
+  isEmpty,
+  isNumber,
+  queryString,
+  overEvery,
+  stubTrue,
+  updateUrlQuery,
+} from './util';
+
+describe('queryString', () => {
+  describe('parse', () => {
+    test('should parse `null`', () => {
+      const query = 'foo=bar&food=null';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: null };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should parse `undefined`', () => {
+      const query = 'foo=bar&food=undefined';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: undefined };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should parse `true`', () => {
+      const query = 'foo=bar&food=true';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: true };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should parse `false`', () => {
+      const query = 'foo=bar&food=false';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', food: false };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should filter empty values', () => {
+      const query = 'foo=bar&food&cat=dog';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar', cat: 'dog' };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should filter empty values after equals', () => {
+      const query = 'foo=bar&food=';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: 'bar' };
+
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe('stringify', () => {
+    test('should retain array syntax', () => {
+      const data = { foo: 'bar', cat: [1, 2, 3] };
+
+      const actual = queryString.stringify(data);
+      const expected = 'cat=1,2,3&foo=bar';
+
+      expect(actual).toBe(expected);
+    });
+
+    test('should filter empty values', () => {
+      const data = {
+        foo: '',
+        bar: [],
+        food: 'bear',
+      };
+
+      const actual = queryString.stringify(data);
+      const expected = 'food=bear';
+
+      expect(actual).toBe(expected);
+    });
+
+    test('should filter nil values', () => {
+      const data = {
+        foo: null,
+        bar: undefined,
+        food: 'bear',
+      };
+
+      const actual = queryString.stringify(data);
+      const expected = 'food=bear';
+
+      expect(actual).toBe(expected);
+    });
+
+    test('should serialize strings with spaces', () => {
+      const data = {
+        foo: 'bar food bear',
+      };
+
+      const actual = queryString.stringify(data);
+      const expected = 'foo=bar+food+bear';
+
+      expect(actual).toBe(expected);
+    });
+  });
+});
 
 describe('updateUrlQuery', () => {
   test('should not change with no query', () => {
@@ -84,5 +199,104 @@ describe('flow', () => {
     const expected = 9;
 
     expect(actual).toEqual(expected);
+  });
+});
+
+describe('isEmpty', () => {
+  test('should handle strings', () => {
+    const actual = isEmpty('');
+    const expected = true;
+
+    expect(actual).toBe(expected);
+  });
+});
+
+describe('isNumber', () => {
+  test('should handle numbers', () => {
+    const actual = isNumber(3);
+    const expected = true;
+
+    expect(actual).toBe(expected);
+  });
+
+  test('should handle numerical string', () => {
+    const actual = isNumber('3');
+    const expected = true;
+
+    expect(actual).toBe(expected);
+  });
+
+  test('should reject non-numerical strings', () => {
+    let actual = isNumber('');
+    let expected = false;
+
+    expect(actual).toBe(expected);
+
+    actual = isNumber('test');
+    expected = false;
+
+    expect(actual).toBe(expected);
+  });
+
+  test('should reject arrays', () => {
+    let actual = isNumber([]);
+    let expected = false;
+
+    expect(actual).toBe(expected);
+
+    actual = isNumber([1, 2, 3]);
+    expected = false;
+
+    expect(actual).toBe(expected);
+  });
+
+  test('should reject objects', () => {
+    let actual = isNumber({});
+    let expected = false;
+
+    expect(actual).toBe(expected);
+
+    actual = isNumber({ foo: 'bar' });
+    expected = false;
+
+    expect(actual).toBe(expected);
+  });
+
+  test('should reject null', () => {
+    const actual = isNumber(null);
+    const expected = false;
+
+    expect(actual).toBe(expected);
+  });
+
+  test('should reject undefined', () => {
+    const actual = isNumber(undefined);
+    const expected = false;
+
+    expect(actual).toBe(expected);
+  });
+});
+
+describe('overEvery', () => {
+  test('should compose predicates', () => {
+    const isEven = (v) => v % 2 === 0;
+    const isGreaterThan10 = (v) => v > 10;
+
+    const func = overEvery([isEven, isGreaterThan10]);
+
+    let actual = func(12);
+    let expected = true;
+
+    expect(actual).toBe(expected);
+
+    actual = func(10);
+    expected = false;
+
+    expect(actual).toBe(expected);
+
+    actual = func(13);
+    expected = false;
+
+    expect(actual).toBe(expected);
   });
 });
