@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import useAppState from './useAppState';
+import useTimeoutBoolean from './useTimeoutBoolean';
 
 import {
   ActionBar,
@@ -50,7 +51,8 @@ const getInitialTrackingState = () => ({
 
 function App() {
   const [trackingState, setTrackingState] = useState(getInitialTrackingState);
-  const [highlightInstructions, setHighlightInstructions] = useState(false);
+  const [highlightInstructions, setHighlightInstructions] =
+    useTimeoutBoolean(350);
 
   const [urlState, setUrlState] = useAppState(() => {
     const newClickedTiles = getNewClickedTiles(BOARD_SIZE, DEFAULT_COMPLEXITY);
@@ -79,15 +81,6 @@ function App() {
   const boardSize = getBoardSize(board);
 
   const { clickCount, hasWon, isShowingSolution } = trackingState;
-
-  useEffect(() => {
-    if (highlightInstructions) {
-      const timeoutId = setTimeout(() => {
-        setHighlightInstructions(false);
-      }, 350);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [highlightInstructions]);
 
   const resetAppState = () => {
     setTrackingState(getInitialTrackingState);
