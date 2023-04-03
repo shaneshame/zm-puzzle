@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { isFunction, queryString, updateUrlQuery } from './util';
 
@@ -20,8 +20,6 @@ const setUrlQuery = (query, historyMethod) => {
 // https://github.com/remix-run/react-router/blob/main/packages/react-router-dom/index.tsx#L851
 
 function useUrlState(initialState = {}, options = {}) {
-  const currentSearchString = getSearchString();
-
   const serialize = useMemo(() => {
     return options.serialize ?? queryString.stringify;
   }, [options]);
@@ -30,33 +28,33 @@ function useUrlState(initialState = {}, options = {}) {
     return options.deserialize ?? queryString.parse;
   }, [options]);
 
-  const initialStateRef = useRef(
-    isFunction(initialState) ? initialState() : initialState,
-  );
-
-  const urlState = useMemo(() => {
+  const [urlState, setReturnState] = useState(() => {
+    const initState = isFunction(initialState) ? initialState() : initialState;
+    const currentSearchString = getSearchString();
     const currentUrlState = deserialize(currentSearchString);
 
     return {
-      ...initialStateRef.current,
+      ...initState,
       ...currentUrlState,
     };
-  }, [currentSearchString, deserialize]);
+  });
 
   const setUrlState = useCallback(
-    (state, method) => {
+    (newState, method) => {
       const currentUrlState = deserialize(getSearchString());
 
-      const nextState = isFunction(state) ? state(currentUrlState) : state;
+      const nextState = isFunction(newState)
+        ? newState(currentUrlState)
+        : newState;
 
-      const newState = {
+      const query = serialize({
         ...currentUrlState,
         ...nextState,
-      };
-
-      const query = serialize(newState);
+      });
 
       setUrlQuery(query, options.historyMethod ?? method);
+
+      setReturnState(deserialize(query));
     },
     [deserialize, options.historyMethod, serialize],
   );
