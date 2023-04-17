@@ -46,25 +46,8 @@ const overSome = (predicates = []) => {
   return (...args) => predicates.some((predicate) => predicate(...args));
 };
 
-const filterObject = (obj = {}, predicate = identity) => {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    return predicate(value, key)
-      ? {
-          ...acc,
-          [key]: value,
-        }
-      : acc;
-  }, {});
-};
-
-const flow = (funcs = []) => {
-  return (...args) => {
-    return funcs.reduce(
-      (accumulator, nextFunc) =>
-        isUndefined(accumulator) ? nextFunc(...args) : nextFunc(accumulator),
-      undefined,
-    );
-  };
+const ensureArray = (value) => {
+  return Array.isArray(value) ? value : [value];
 };
 
 const cond = (conditionPairs = []) => {
@@ -82,44 +65,26 @@ const isStringUndefined = (str = '') => str === 'undefined';
 const isStringTrue = (str = '') => str === 'true';
 const isStringFalse = (str = '') => str === 'false';
 
-const isStringPrimitive = overSome([
-  isStringNull,
-  isStringUndefined,
-  isStringTrue,
-  isStringFalse,
-]);
-
-const parseStringPrimitive = cond([
+const stringPrimitivePairs = [
+  [isNumber, Number],
   [isStringNull, () => null],
   [isStringUndefined, () => undefined],
   [isStringTrue, stubTrue],
   [isStringFalse, stubFalse],
+];
+
+const isStringPrimitive = overSome(
+  stringPrimitivePairs.map(([predicate]) => predicate),
+);
+
+const parseStringPrimitive = cond([
+  ...stringPrimitivePairs,
   [stubTrue, identity],
 ]);
 
-const ensureLeadingQuestion = (str = '') => {
-  return str[0] === '?' ? str : `?${str}`;
-};
-
-const wrapArrayBrackets = (str = '') => {
-  return `[${str}]`;
-};
-
 const parseStringArray = (arrayString = '') => {
-  return JSON.parse(wrapArrayBrackets(arrayString));
+  return arrayString.split(',').map(parseStringPrimitive);
 };
-
-const updateUrlQuery = (urlString = '', query) => {
-  const baseUrl = new URL(urlString);
-  const search = query ? `${ensureLeadingQuestion(query)}` : '';
-
-  const newUrlString = `${baseUrl.origin}${baseUrl.pathname}${search}${baseUrl.hash}`;
-
-  return newUrlString;
-};
-
-// `stringify` and `parse` inspired by Rob Marshall
-// https://robertmarshall.dev/blog/migrating-from-query-string-to-urlsearchparams/
 
 const alphaByKey = ([keyA], [keyB]) => keyA.localeCompare(keyB);
 
@@ -141,7 +106,6 @@ const stringify = (obj = {}) => {
 
 const parseValue = cond([
   [isStringArray, parseStringArray],
-  [isNumber, Number],
   [isStringPrimitive, parseStringPrimitive],
   [stubTrue, identity],
 ]);
@@ -150,27 +114,56 @@ const parse = (queryString) => {
   const searchParams = new URLSearchParams(queryString);
 
   return [...searchParams.entries()].reduce((acc, [key, value]) => {
-    return shouldInclude(value)
-      ? {
-          ...acc,
-          [key]: parseValue(value),
-        }
-      : acc;
+    if (shouldInclude(value)) {
+      const parsedValue = parseValue(value);
+
+      const newValue = acc[key]
+        ? ensureArray(acc[key]).concat(ensureArray(parsedValue))
+        : parsedValue;
+
+      return {
+        ...acc,
+        [key]: newValue,
+      };
+    }
+
+    return acc;
   }, {});
 };
 
 const queryString = { parse, stringify };
 
+const ensureLeadingQuestion = (str = '') => {
+  return str[0] === '?' ? str : `?${str}`;
+};
+
+function getQueryNavigation(locationString, newQuery) {
+  if (!locationString) return '';
+
+  const baseUrl = new URL(locationString);
+  const query = newQuery ? `${ensureLeadingQuestion(newQuery)}` : '';
+
+  return `${baseUrl.pathname}${query}${baseUrl.hash}`;
+}
+
+function isBrowser() {
+  return !!(
+    typeof window !== 'undefined' &&
+    window.document &&
+    window.document.createElement
+  );
+}
+
 export {
   cond,
-  filterObject,
-  flow,
+  getQueryNavigation,
   identity,
+  isBrowser,
   isEmpty,
   isFunction,
   isNumber,
   isPresent,
   overEvery,
+  overSome,
   queryString,
-  updateUrlQuery,
 };

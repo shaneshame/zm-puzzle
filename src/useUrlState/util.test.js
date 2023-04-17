@@ -1,12 +1,12 @@
 import {
   cond,
-  flow,
+  getQueryNavigation,
   isEmpty,
   isNumber,
-  queryString,
   overEvery,
+  overSome,
+  queryString,
   stubTrue,
-  updateUrlQuery,
 } from './util';
 
 describe('queryString', () => {
@@ -64,6 +64,40 @@ describe('queryString', () => {
 
       expect(actual).toEqual(expected);
     });
+
+    test('should parse arrays as repeated keys', () => {
+      const query = 'foo=bar&foo=tiger&foo=apple';
+
+      const actual = queryString.parse(query);
+      const expected = { foo: ['bar', 'tiger', 'apple'] };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should merge parsed arrays as repeated keys', () => {
+      let query = 'foo=bar&foo=tiger&foo=apple,orange';
+
+      let actual = queryString.parse(query);
+      let expected = { foo: ['bar', 'tiger', 'apple', 'orange'] };
+
+      query = 'foo=apple,orange&foo=bar&foo=tiger';
+
+      actual = queryString.parse(query);
+      expected = { foo: ['apple', 'orange', 'bar', 'tiger'] };
+
+      expect(actual).toEqual(expected);
+    });
+
+    test('should parse array values', () => {
+      const query = 'foo=bar&foo=3&foo=4,true,null,undefined&foo=false&foo=100';
+
+      const actual = queryString.parse(query);
+      const expected = {
+        foo: ['bar', 3, 4, true, null, undefined, false, 100],
+      };
+
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe('stringify', () => {
@@ -115,12 +149,12 @@ describe('queryString', () => {
   });
 });
 
-describe('updateUrlQuery', () => {
+describe('getQueryNavigation', () => {
   test('should not change with no query', () => {
     const baseUrl = 'https://en.wikipedia.org/wiki/Rickrolling';
 
-    const actual = updateUrlQuery(baseUrl);
-    const expected = baseUrl;
+    const actual = getQueryNavigation(baseUrl);
+    const expected = '/wiki/Rickrolling';
 
     expect(actual).toBe(expected);
   });
@@ -131,9 +165,8 @@ describe('updateUrlQuery', () => {
 
     const newQuery = 'title=RickRollRickRoll&data=1,2,3,4,5';
 
-    const actual = updateUrlQuery(baseUrl, newQuery);
-    const expected =
-      'https://en.wikipedia.org/w/index.php?title=RickRollRickRoll&data=1,2,3,4,5';
+    const actual = getQueryNavigation(baseUrl, newQuery);
+    const expected = '/w/index.php?title=RickRollRickRoll&data=1,2,3,4,5';
 
     expect(actual).toBe(expected);
   });
@@ -144,9 +177,9 @@ describe('updateUrlQuery', () => {
 
     const newQuery = 'title=RickRollRickRoll&data=1,2,3,4,5';
 
-    const actual = updateUrlQuery(baseUrl, newQuery);
+    const actual = getQueryNavigation(baseUrl, newQuery);
     const expected =
-      'https://en.wikipedia.org/wiki/Rickrolling?title=RickRollRickRoll&data=1,2,3,4,5#Later_usage';
+      '/wiki/Rickrolling?title=RickRollRickRoll&data=1,2,3,4,5#Later_usage';
 
     expect(actual).toBe(expected);
   });
@@ -156,8 +189,8 @@ describe('updateUrlQuery', () => {
 
     const newQuery = 'https://google.com';
 
-    const actual = updateUrlQuery(oddUrl, newQuery);
-    const expected = 'https://subdomain.domain.com/url=?https://google.com';
+    const actual = getQueryNavigation(oddUrl, newQuery);
+    const expected = '/url=?https://google.com';
 
     expect(actual).toBe(expected);
   });
@@ -183,20 +216,6 @@ describe('cond', () => {
 
     const actual = evaluator('test');
     const expected = undefined;
-
-    expect(actual).toEqual(expected);
-  });
-});
-
-describe('flow', () => {
-  test('should apply functions in order', () => {
-    const add = (...args) => args.reduce((acc, v) => acc + v, 0);
-    const square = (v) => v ** 2;
-
-    const addSquare = flow([add, square]);
-
-    const actual = addSquare(1, 2);
-    const expected = 9;
 
     expect(actual).toEqual(expected);
   });
@@ -295,6 +314,30 @@ describe('overEvery', () => {
     expect(actual).toBe(expected);
 
     actual = func(13);
+    expected = false;
+
+    expect(actual).toBe(expected);
+  });
+});
+
+describe('overSome', () => {
+  test('should compose predicates', () => {
+    const isEven = (v) => v % 2 === 0;
+    const isGreaterThan10 = (v) => v > 10;
+
+    const func = overSome([isEven, isGreaterThan10]);
+
+    let actual = func(11);
+    let expected = true;
+
+    expect(actual).toBe(expected);
+
+    actual = func(8);
+    expected = true;
+
+    expect(actual).toBe(expected);
+
+    actual = func(7);
     expected = false;
 
     expect(actual).toBe(expected);
