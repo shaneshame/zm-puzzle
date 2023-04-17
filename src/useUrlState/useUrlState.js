@@ -1,25 +1,14 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
-import { isFunction, queryString, updateUrlQuery } from './util';
-
-const getSearchString = () => {
-  return window.location.search.toString();
-};
-
-const setUrlQuery = (query, historyMethod) => {
-  const updatedUrl = updateUrlQuery(window.location.toString(), query);
-
-  if (historyMethod === 'push') {
-    window.history.pushState({}, '', updatedUrl);
-  } else {
-    window.history.replaceState({}, '', updatedUrl);
-  }
-};
-
-// Inspired by @remix react-router `useSearchParam` hook
-// https://github.com/remix-run/react-router/blob/main/packages/react-router-dom/index.tsx#L851
+import useNavigate from './useNavigate';
+import useSearchParams from './useSearchParams';
+import { isFunction, queryString, getQueryNavigation } from './util';
 
 function useUrlState(initialState = {}, options = {}) {
+  const navigate = useNavigate();
+  const searchParams = useSearchParams();
+  const searchString = searchParams.toString();
+
   const serialize = useMemo(() => {
     return options.serialize ?? queryString.stringify;
   }, [options]);
@@ -28,20 +17,22 @@ function useUrlState(initialState = {}, options = {}) {
     return options.deserialize ?? queryString.parse;
   }, [options]);
 
-  const [urlState, setReturnState] = useState(() => {
-    const initState = isFunction(initialState) ? initialState() : initialState;
-    const currentSearchString = getSearchString();
-    const currentUrlState = deserialize(currentSearchString);
+  const initialStateRef = useRef(
+    isFunction(initialState) ? initialState() : initialState,
+  );
+
+  const urlState = useMemo(() => {
+    const currentUrlState = deserialize(searchString);
 
     return {
-      ...initState,
+      ...initialStateRef.current,
       ...currentUrlState,
     };
-  });
+  }, [deserialize, searchString]);
 
   const setUrlState = useCallback(
-    (newState, method) => {
-      const currentUrlState = deserialize(getSearchString());
+    (newState, replace) => {
+      const currentUrlState = deserialize(searchString);
 
       const nextState = isFunction(newState)
         ? newState(currentUrlState)
@@ -52,11 +43,12 @@ function useUrlState(initialState = {}, options = {}) {
         ...nextState,
       });
 
-      setUrlQuery(query, options.historyMethod ?? method);
-
-      setReturnState(deserialize(query));
+      navigate(
+        getQueryNavigation(window?.location.toString(), query),
+        replace || options.replace,
+      );
     },
-    [deserialize, options.historyMethod, serialize],
+    [deserialize, navigate, options.replace, searchString, serialize],
   );
 
   return [urlState, setUrlState];

@@ -4,12 +4,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { SearchParamsProvider } from './useUrlState';
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <App />
+    <SearchParamsProvider>
+      <App />
+    </SearchParamsProvider>
   </React.StrictMode>,
 );
 
