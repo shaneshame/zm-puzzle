@@ -9,7 +9,6 @@ const Select = styled.select`
   font-size: 1.5rem;
   height: 5rem;
   text-align: center;
-  width: 100%;
 `;
 
 const SelectOption = styled.option`

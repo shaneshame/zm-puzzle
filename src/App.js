@@ -38,8 +38,9 @@ const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
 
 const AppContainer = styled.div`
-  margin: 0 auto;
+  margin-inline: auto;
   max-width: 100%;
+  padding: 0 0.25rem;
   width: 500px;
 `;
 

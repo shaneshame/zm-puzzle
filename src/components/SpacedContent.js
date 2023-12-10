@@ -2,8 +2,6 @@ import styled from 'styled-components';
 
 const Grid = styled.div`
   display: grid;
-  grid-template-rows: auto;
-  justify-items: start;
 
   ${(props) =>
     props.space &&
