@@ -5,6 +5,7 @@ import colors from '../colors';
 const ActionBar = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto;
 `;
 
 const ActionButton = styled.button`
@@ -14,7 +15,6 @@ const ActionButton = styled.button`
   box-sizing: border-box;
   color: ${colors.white};
   cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
-  display: inline-block;
   font-family: 'Roboto', sans-serif;
   font-size: 1.5rem;
   font-weight: 300;
@@ -22,17 +22,11 @@ const ActionButton = styled.button`
   text-align: center;
   text-decoration: none;
   transition: all 0.2s;
-  width: 100%;
 
   &:disabled {
     background-color: ${colors.grayDark};
     border: 0.1rem solid ${colors.grayDark};
     color: ${colors.gray};
-  }
-
-  @media all and (max-width: 30rem) {
-    display: block;
-    margin: 0.4rem auto;
   }
 
   @media (hover: hover) {
