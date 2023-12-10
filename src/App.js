@@ -219,15 +219,6 @@ function App() {
             );
           })}
         </Select>
-        <Select onChange={handleChangeBoardSize} value={boardSize}>
-          {range(2, MAX_BOARD_SIZE + 1).map((n) => {
-            return (
-              <SelectOption key={n} value={n}>
-                Board Size: {n}x{n}
-              </SelectOption>
-            );
-          })}
-        </Select>
         <InstructionsSection>
           <SubHeader id="instructions">Instructions</SubHeader>
           <InstructionsList>
