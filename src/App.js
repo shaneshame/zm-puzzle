@@ -36,6 +36,7 @@ import {
 const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
+const MAX_BOARD_SIZE = 7;
 
 const AppContainer = styled.div`
   margin-inline: auto;
@@ -127,6 +128,12 @@ function App() {
     newGame({ complexity: newComplexity });
   };
 
+  const handleChangeBoardSize = (event) => {
+    const newBoardSize = Number(event.target.value);
+
+    newGame({ boardSize: newBoardSize, complexity: selectedComplexity });
+  };
+
   const handleTileClick = (clickedIndex) => {
     const newClickedTiles = clickedTiles.map((value, index) =>
       index === clickedIndex ? toggleBinary(value) : value,
@@ -208,6 +215,15 @@ function App() {
             return (
               <SelectOption key={n} value={n}>
                 Starting Clicks: {n}
+              </SelectOption>
+            );
+          })}
+        </Select>
+        <Select onChange={handleChangeBoardSize} value={boardSize}>
+          {range(2, MAX_BOARD_SIZE + 1).map((n) => {
+            return (
+              <SelectOption key={n} value={n}>
+                Board Size: {n}x{n}
               </SelectOption>
             );
           })}
