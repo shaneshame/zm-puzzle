@@ -4,7 +4,6 @@ import colors from '../colors';
 const HeaderBar = styled.div`
   margin: 1rem 0;
   position: relative;
-  width: 100%;
 `;
 
 const Header = styled.h1`

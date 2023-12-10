@@ -30,7 +30,6 @@ const InstructionsAnchor = styled.a`
 const InstructionsSection = styled.section`
   padding: 0 1rem;
   position: relative;
-  width: 100%;
 `;
 
 const InstructionsList = styled.ul`
