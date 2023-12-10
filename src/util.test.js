@@ -4,11 +4,14 @@ import {
   chunk,
   clickManyTiles,
   clickTile,
+  getBoardFromClickedTiles,
   getEmptyBoard,
   getIndexAbove,
   getIndexBelow,
   getIndexLeft,
   getIndexRight,
+  getIndexSet,
+  getNewClickedTiles,
   range,
 } from './util';
 
@@ -354,5 +357,31 @@ describe('Click Tile', () => {
     expected = null;
 
     expect(actual).toBe(expected);
+  });
+
+  test('getIndexSet', () => {
+    const boardSize = 2;
+    const count = 5;
+
+    const length = boardSize ** 2;
+
+    const indexSet = getIndexSet(count, length);
+
+    const expectedLength = Math.min(count, length);
+    const actualLength = Array.from(indexSet).length;
+
+    expect(actualLength).toBe(expectedLength);
+  });
+});
+
+describe('getNewClickedTiles', () => {
+  test('getNewClickedTiles', () => {
+    const boardSize = 2;
+    const numClicks = 5;
+
+    const actualLength = getNewClickedTiles(boardSize, numClicks).length;
+    const expectedLength = boardSize ** 2;
+
+    expect(actualLength).toBe(expectedLength);
   });
 });

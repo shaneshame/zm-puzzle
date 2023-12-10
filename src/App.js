@@ -36,6 +36,7 @@ import {
 const DEFAULT_COMPLEXITY = 5;
 const MAX_COMPLEXITY = 7;
 const BOARD_SIZE = 5;
+const MIN_BOARD_SIZE = 2;
 const MAX_BOARD_SIZE = 7;
 
 const AppContainer = styled.div`
@@ -83,6 +84,10 @@ function App() {
   const boardSize = getBoardSize(board);
 
   const { clickCount, hasWon, isShowingSolution } = trackingState;
+
+  const getMaxComplexity = () => {
+    return Math.min(MAX_COMPLEXITY, boardSize ** 2);
+  };
 
   const resetAppState = () => {
     setTrackingState(getInitialTrackingState);
@@ -209,12 +214,22 @@ function App() {
         >
           <SelectOption key="custom" value={0}>
             Custom
-            {selectedComplexity > MAX_COMPLEXITY && ` (${selectedComplexity})`}
+            {selectedComplexity > getMaxComplexity() &&
+              ` (${selectedComplexity})`}
           </SelectOption>
-          {range(1, MAX_COMPLEXITY + 1).map((n) => {
+          {range(1, getMaxComplexity() + 1).map((n) => {
             return (
               <SelectOption key={n} value={n}>
                 Starting Clicks: {n}
+              </SelectOption>
+            );
+          })}
+        </Select>
+        <Select onChange={handleChangeBoardSize} value={boardSize}>
+          {range(MIN_BOARD_SIZE, MAX_BOARD_SIZE + 1).map((n) => {
+            return (
+              <SelectOption key={n} value={n}>
+                Board Size: {n}x{n}
               </SelectOption>
             );
           })}

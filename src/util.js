@@ -130,7 +130,7 @@ const clickManyTiles = (indices, board, callback = noop) => {
 const getIndexSet = (count, maxIndex) => {
   const uniqueIndices = new Set();
 
-  while (uniqueIndices.size < count) {
+  while (uniqueIndices.size < Math.min(count, maxIndex)) {
     uniqueIndices.add(getRandomInt(maxIndex));
   }
 
