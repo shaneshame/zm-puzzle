@@ -9,9 +9,7 @@ const BoardContainer = styled.div`
   display: grid;
   grid-template-columns: ${(props) => `repeat(${props.boardSize}, 1fr)`};
   grid-template-rows: ${(props) => `repeat(${props.boardSize}, 1fr)`};
-  height: 100%;
   position: relative;
-  width: 100%;
 `;
 
 const Tile = styled.div`
